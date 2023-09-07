@@ -39,6 +39,6 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Set up GitHub <br>
 
-[✔️] Finish Data Preprocessing <br>
+[] Finish Data Preprocessing <br>
 
 -----------------------------
