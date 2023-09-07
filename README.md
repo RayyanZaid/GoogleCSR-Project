@@ -2,14 +2,14 @@
 An end-to-end deep learning architecture used to give value to micro-actions in basketball
 
 
-# Week 1 (8/14 — 8/18) Goals
+# Week 1 (8/14 — 8/18) Goals <br />
 
-[X] Read through and annotate DeepHoops: Evaluating Micro-Actions in Basketball Using Deep Feature Representations of Spatio-Temporal Data
-[✔️] Read through and annotate tHoops: A Multi-Aspect Analytical Framework for Spatio-Temporal Basketball Data
+[X] Read through and annotate DeepHoops: Evaluating Micro-Actions in Basketball Using Deep Feature Representations of Spatio-Temporal Data <br />
+[✔️] Read through and annotate tHoops: A Multi-Aspect Analytical Framework for Spatio-Temporal Basketball Data <br />
 
-# Week 2 (8/21 — 8/25) Goals
+# Week 2 (8/21 — 8/25) Goals <br />
 
-[✔️] Read through and annotate DeepHoops: Evaluating Micro-Actions in Basketball Using Deep Feature Representations of Spatio-Temporal Data
+[✔️] Read through and annotate DeepHoops: Evaluating Micro-Actions in Basketball Using Deep Feature Representations of Spatio-Temporal Data <br />
 [✔️] Decide on a research project — Going to Extend the DeepHoops framework to the 2015-16 NBA Dataset
 [✔️] Learn about Recurrent Neural Networks
 
