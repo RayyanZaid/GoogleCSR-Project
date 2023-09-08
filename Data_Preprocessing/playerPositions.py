@@ -14,6 +14,7 @@ current_second = None
 current_quarter = None
 current_possessing_team = None
 current_shot_clock = None
+current_time_since_1970 = None
 
 # Iterate through each event
 for event in data["events"]:
@@ -23,11 +24,12 @@ for event in data["events"]:
     # Iterate through each moment in the event
     for moment in event["moments"]:
         # Extract the seconds left in the current quarter, quarter number, and shot clock time
+        current_time_since_1970 = moment[1]
         seconds_left = moment[2]
         quarter = moment[0]
-        shot_clock = moment[3]
+        current_shot_clock = moment[3]
 
-        if shot_clock == None:
+        if current_shot_clock == None:
             continue
         # Round down the current second to the nearest whole second
         current_second_rounded = math.floor(seconds_left)
@@ -59,7 +61,7 @@ for event in data["events"]:
             current_quarter = quarter
 
             # Print which team has possession, shot clock, and quarter
-            print(f"Quarter: {current_quarter}, Possessing Team: {current_possessing_team}, Shot Clock: {current_shot_clock} seconds")
+            print(f"Quarter: {current_quarter}, Possessing Team: {current_possessing_team}, Shot Clock: {current_shot_clock} seconds, Time: {current_time_since_1970}")
 
         # Stop checking possession after the first 5 iterations
         if iteration_counter >= 5:
