@@ -42,3 +42,13 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 [] Finish Data Preprocessing (almost) <br>
 
 -----------------------------
+
+# Week 5 (9/11 — 9/15) Goals <br>
+
+[] Finish Data Preprocessing <br>
+
+[] Use NBA's API to label micro-actions and terminals
+
+[] Start designing the LSTM <br>
+
+
