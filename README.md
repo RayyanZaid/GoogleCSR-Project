@@ -39,7 +39,7 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Set up GitHub <br>
 
-[✔️] Create function to convert rectangular to polar coordinates <br>
+[✔️] Create a function to convert rectangular to polar coordinates <br>
 
 [✔️] Implement code used to track trajectories from JSON formatted data from SportsVU <br>
 
@@ -51,7 +51,7 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [] Finish Data Preprocessing <br>
 
-[] Use NBA's API to label micro-actions and terminals
+[] Use NBA's API to label terminals
 
 [] Start designing the LSTM <br>
 
