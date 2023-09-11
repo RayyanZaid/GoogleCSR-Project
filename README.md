@@ -39,7 +39,11 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Set up GitHub <br>
 
-[] Finish Data Preprocessing (almost) <br>
+[✔️] Create function to convert rectangular to polar coordinates <br>
+
+[✔️] Implement code used to track trajectories from JSON formatted data from SportsVU <br>
+
+[✔️] Start Data Preprocessing (almost) <br>
 
 -----------------------------
 
