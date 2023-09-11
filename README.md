@@ -35,10 +35,10 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Draft the research article — https://docs.google.com/document/d/1a8EIMa3-K1YvLrpybqK3ccukEwvTc_aD3leMdfc9T9g/edit?usp=sharing <br>
 
-[] Visualize dataset <br>
+[✔️] Visualize dataset <br>
 
 [✔️] Set up GitHub <br>
 
-[] Finish Data Preprocessing <br>
+[] Finish Data Preprocessing (almost) <br>
 
 -----------------------------
