@@ -23,6 +23,37 @@ class EventMsgType(Enum):
     PERIOD_BEGIN = 12
     PERIOD_END = 13
 
+
+def add_seconds_to_time(time_str, seconds_to_add):
+    # Split the time string into minutes and seconds
+    minutes_str, seconds_str = time_str.split(':')
+    
+    # Convert minutes and seconds to integers
+    minutes = int(minutes_str)
+    seconds = int(seconds_str)
+    
+    # Add seconds_to_add to the seconds component
+    seconds += seconds_to_add
+    
+    # Handle overflow if seconds exceed 59
+    if seconds >= 60:
+        minutes += 1
+        seconds -= 60
+    
+    # Format the updated time as "mm:ss"
+    updated_time_str = f"{minutes:02}:{seconds:02}"
+    
+    return updated_time_str
+
+# Example usage:
+original_time = "11:05"
+seconds_to_add = 2
+updated_time = add_seconds_to_time(original_time, seconds_to_add)
+print(updated_time)  # Output: "11:07"
+
+
+
+
 class MomentPreprocessing:
 
     def __init__(self, json_path):
@@ -39,9 +70,34 @@ class MomentPreprocessing:
         else:
             print("No number found in the text.")
 
-        self.df_From_NBA_API = df = playbyplay.PlayByPlay(number_part).get_data_frames()[0]
+        df_From_NBA_API = playbyplay.PlayByPlay(number_part).get_data_frames()[0]
 
-        self.dfEventPointer = 0
+        self.NBA_API_MAP = {}
+
+        for eachEvent in df_From_NBA_API.values:
+            
+            quarter = eachEvent[4]
+            timeStamp = eachEvent[6]
+            eventNum = eachEvent[2]
+
+        # Field Goal Attempt
+            if eventNum == 1 or eventNum == 2:
+                print("Field Goal Attempt")
+                # timeStamp = add_seconds_to_time(timeStamp, 3)
+
+            elif eventNum == 5:
+                print("Turnover")
+            
+            elif eventNum == 6:
+                print("Foul")
+
+            else:
+                continue
+
+            self.NBA_API_MAP[(quarter,timeStamp)] = eventNum
+
+
+            self.lastAnnotationNum = "0"
 
 
     def read_json(self):
@@ -49,64 +105,54 @@ class MomentPreprocessing:
         self.events = data_frame['events']
 
     def iterateThroughEvents(self):
-        moment_data_list = []  # List to store data for each moment
-
-        for eachEvent in self.events:
-            eventObject = Event(eachEvent)
-
-            for momentObject in eventObject.moments:
-                moment_data = {
-                    "annotation": "0",  # Annotation for each moment (can be modified later)
-                    # "quarter": momentObject.quarter,
-
-                    "game_clock" : momentObject.game_clock,
-                    "shot_clock": momentObject.shot_clock,
-                    
-                    "playerLocations": [],
-                    "ballLocation": []
-                }
-
-
-
-                # Extract player locations (x, y) for the first 20 elements
-                for i in range(len(momentObject.players)):
-                    player = momentObject.players[i]
-                    moment_data["playerLocations"].append({"x": player.x, "y": player.y})
-
-                # Extract ball coordinates (x, y, z) for the next 3 elements
-                ball = momentObject.ball
-                moment_data["ballLocation"] = {"x": ball.x, "y": ball.y, "z": ball.radius}
-
-                
-
-
-                # also add the label
-
-                quarter = momentObject.quarter
-                secondsUntilEndOfQuarter = momentObject.game_clock
-                
-                if self.dfEventPointer < len(self.df_From_NBA_API.values) and secondsUntilEndOfQuarter > 1:
-                    annotation = self.annotateMomentUsingNBA_API(quarter,secondsUntilEndOfQuarter)
-
-                if annotation == None:
-                    moment_data["annotation"] = "null"
-                else:
-                    moment_data["annotation"] = annotation
-                moment_data_list.append(moment_data)
-
-        # Write the moment data to a CSV file
-        with open("Data_Preprocessing/moments.csv", mode="w", newline="") as csv_file:
-            fieldnames = ["playerLocations", "ballLocation", "shot_clock" , "game_clock" , "annotation"]
+        # Open the CSV file in append mode
+        with open("Data_Preprocessing/moments.csv", mode="a", newline="") as csv_file:
+            fieldnames = ["playerLocations", "ballLocation", "shot_clock", "game_clock", "annotation"]
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-            writer.writeheader()
-            for moment_data in moment_data_list:
-                writer.writerow(moment_data)
+
+            # Iterate through events and moments
+            for eachEvent in self.events:
+                eventObject = Event(eachEvent)
+
+                for momentObject in eventObject.moments:
+                    moment_data = {
+                        "annotation": "null",
+                        "game_clock": momentObject.game_clock,
+                        "shot_clock": momentObject.shot_clock,
+                        "playerLocations": [],
+                        "ballLocation": []
+                    }
+
+                    for i in range(len(momentObject.players)):
+                        player = momentObject.players[i]
+                        moment_data["playerLocations"].append({"x": player.x, "y": player.y})
+
+                    ball = momentObject.ball
+                    moment_data["ballLocation"] = {"x": ball.x, "y": ball.y, "z": ball.radius}
+
+                    quarter = momentObject.quarter
+                    secondsUntilEndOfQuarter = momentObject.game_clock
+
+                    annotation = self.annotateMomentUsingNBA_API(quarter, secondsUntilEndOfQuarter)
+                    
+                    if(self.lastAnnotationNum != annotation):
+                        moment_data["annotation"] = annotation
+                    
+                    else:
+                       moment_data["annotation"] = "null" 
+
+                    self.lastAnnotationNum = annotation
+
+                    
+
+                    print(f"annotation: {annotation}, moment_data: {moment_data}")
+
+                    # Write the moment data to the CSV file immediately
+                    writer.writerow(moment_data)
                 
 
 
-    def annotateMomentUsingNBA_API(self,quarterOfMoment, secondsUntilEndOfQuarterOfMoment):
-        
-
+    def annotateMomentUsingNBA_API(self, quarterOfMoment, secondsUntilEndOfQuarterOfMoment):
         # Truncate the decimal points in secondsUntilEndOfQuarterOfMoment
         secondsUntilEndOfQuarterOfMoment = int(secondsUntilEndOfQuarterOfMoment)
 
@@ -115,31 +161,22 @@ class MomentPreprocessing:
         seconds = secondsUntilEndOfQuarterOfMoment % 60
 
         # Format the result as a string in "mm:ss" format
-        timeStampOfMoment = f"{minutes:02}:{seconds:02}"
-
+        if minutes >= 10:
+            timeStampOfMoment = f"{minutes:02}:{seconds:02}"
+        else:
+            timeStampOfMoment = f"{minutes}:{seconds:02}"
 
         if timeStampOfMoment == '12:00':
-            return None
+            return "null"
 
-        current_NBA_API_Event = self.df_From_NBA_API.values[self.dfEventPointer]
-        
         # check if the time stamp of NBA API event matches the time stamp of the moment
         # for now round down each second
-
-        timeStampOfCurrent_NBA_API_Event = current_NBA_API_Event[6]
-
-        while timeStampOfCurrent_NBA_API_Event == "12:00":
-            self.dfEventPointer += 1
-            current_NBA_API_Event = self.df_From_NBA_API.values[self.dfEventPointer]
-            timeStampOfCurrent_NBA_API_Event = current_NBA_API_Event[6]
-
-
-        if timeStampOfMoment == timeStampOfCurrent_NBA_API_Event:
-            eventTypeNum = current_NBA_API_Event[2]
-            self.dfEventPointer += 1
+        if (quarterOfMoment, timeStampOfMoment) in self.NBA_API_MAP:
+            eventTypeNum = self.NBA_API_MAP[(quarterOfMoment, timeStampOfMoment)]
             return eventTypeNum
         else:
-            return None
+            return "null"
+
 
 
         
