@@ -49,11 +49,7 @@ def add_seconds_to_time(time_str, seconds_to_add):
     return updated_time_str
 
 
-# Example usage:
-original_time = "11:05"
-seconds_to_add = 2
-updated_time = add_seconds_to_time(original_time, seconds_to_add)
-print(updated_time)  # Output: "11:07"
+
 
 
 
