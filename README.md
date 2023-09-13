@@ -53,6 +53,6 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Use NBA's API to label terminals
 
-[✔️] Start designing the LSTM <br>
+[] Start designing the LSTM <br>
 
 
