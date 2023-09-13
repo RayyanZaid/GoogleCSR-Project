@@ -40,10 +40,14 @@ def add_seconds_to_time(time_str, seconds_to_add):
         minutes += 1
         seconds -= 60
     
-    # Format the updated time as "mm:ss"
-    updated_time_str = f"{minutes:02}:{seconds:02}"
+    # Determine the format for the updated time
+    if minutes >= 10:
+        updated_time_str = f"{minutes}:{seconds:02}"
+    else:
+        updated_time_str = f"{minutes}:{seconds}"
     
     return updated_time_str
+
 
 # Example usage:
 original_time = "11:05"
@@ -83,7 +87,7 @@ class MomentPreprocessing:
         # Field Goal Attempt
             if eventNum == 1 or eventNum == 2:
                 print("Field Goal Attempt")
-                # timeStamp = add_seconds_to_time(timeStamp, 3)
+                timeStamp = add_seconds_to_time(timeStamp, 1)
 
             elif eventNum == 5:
                 print("Turnover")
@@ -98,6 +102,7 @@ class MomentPreprocessing:
 
 
             self.lastAnnotationNum = "0"
+            self.lastGameClockNum = "720.00"
 
 
     def read_json(self):
@@ -107,6 +112,8 @@ class MomentPreprocessing:
     def iterateThroughEvents(self):
         # Open the CSV file in append mode
         with open("Data_Preprocessing/moments.csv", mode="a", newline="") as csv_file:
+
+
             fieldnames = ["playerLocations", "ballLocation", "shot_clock", "game_clock", "annotation"]
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
@@ -122,6 +129,12 @@ class MomentPreprocessing:
                         "playerLocations": [],
                         "ballLocation": []
                     }
+
+                    if(self.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
+                        continue
+                    else:
+                        self.lastGameClockNum = momentObject.game_clock
+
 
                     for i in range(len(momentObject.players)):
                         player = momentObject.players[i]
@@ -182,6 +195,6 @@ class MomentPreprocessing:
         
 
 # Example usage:
-obj = MomentPreprocessing(r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Data_Preprocessing\MomentPreprocessing\0021500494.json")
+obj = MomentPreprocessing(r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Datasets\0021500524.json")
 obj.read_json()
 obj.iterateThroughEvents()
