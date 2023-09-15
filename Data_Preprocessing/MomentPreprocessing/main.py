@@ -123,7 +123,7 @@ class MomentPreprocessing:
 
                 for momentObject in eventObject.moments:
                     moment_data = {
-                        "annotation": "null",
+                        "annotation": 0,
                         "game_clock": str(momentObject.game_clock),
                         "shot_clock": str(momentObject.shot_clock),
                         "playerLocations": [],
@@ -152,7 +152,7 @@ class MomentPreprocessing:
                         moment_data["annotation"] = str(annotation)
                     
                     else:
-                       moment_data["annotation"] = "null" 
+                       moment_data["annotation"] = 0
 
                     self.lastAnnotationNum = annotation
 
@@ -180,7 +180,7 @@ class MomentPreprocessing:
             timeStampOfMoment = f"{minutes}:{seconds:02}"
 
         if timeStampOfMoment == '12:00':
-            return "null"
+            return 0
 
         # check if the time stamp of NBA API event matches the time stamp of the moment
         # for now round down each second
@@ -188,7 +188,7 @@ class MomentPreprocessing:
             eventTypeNum = self.NBA_API_MAP[(quarterOfMoment, timeStampOfMoment)]
             return eventTypeNum
         else:
-            return "null"
+            return 0
 
 
 
