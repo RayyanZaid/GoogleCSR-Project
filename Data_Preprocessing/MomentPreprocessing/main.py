@@ -124,8 +124,8 @@ class MomentPreprocessing:
                 for momentObject in eventObject.moments:
                     moment_data = {
                         "annotation": "null",
-                        "game_clock": momentObject.game_clock,
-                        "shot_clock": momentObject.shot_clock,
+                        "game_clock": str(momentObject.game_clock),
+                        "shot_clock": str(momentObject.shot_clock),
                         "playerLocations": [],
                         "ballLocation": []
                     }
@@ -149,7 +149,7 @@ class MomentPreprocessing:
                     annotation = self.annotateMomentUsingNBA_API(quarter, secondsUntilEndOfQuarter)
                     
                     if(self.lastAnnotationNum != annotation):
-                        moment_data["annotation"] = annotation
+                        moment_data["annotation"] = str(annotation)
                     
                     else:
                        moment_data["annotation"] = "null" 

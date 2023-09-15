@@ -4,48 +4,56 @@
     # 1) 25-D array with all the necessary spatio-temporal data
     # 2) A label
 
-# Line from CSV : "[{'x': 47.68579, 'y': 24.46424}, {'x': 68.18295, 'y': 30.4235}, {'x': 56.14942, 'y': 18.65256}, {'x': 47.82405, 'y': 16.97243}, {'x': 50.9952, 'y': 32.64415}, {'x': 45.49446, 'y': 23.49714}, {'x': 45.63887, 'y': 34.14831}, {'x': 23.56491, 'y': 24.45822}, {'x': 44.05126, 'y': 17.08503}, {'x': 36.96702, 'y': 25.53479}]","{'x': 39.59473, 'y': 26.53377, 'z': 8.98725}",24.0,719.97,null
+# Line from CSV : "[{'x': 81.67902, 'y': 18.37563}, {'x': 89.80558, 'y': 31.86329}, {'x': 80.31479, 'y': 31.49464}, {'x': 69.50902, 'y': 2.11084}, {'x': 79.07408, 'y': 26.42447}, {'x': 74.55269, 'y': 13.83294}, {'x': 83.27226, 'y': 44.45603}, {'x': 79.66844, 'y': 33.28058}, {'x': 70.63343, 'y': 0.09149}, {'x': 59.74416, 'y': 33.44953}]","{'x': 89.12535, 'y': 25.66681, 'z': 8.61488}",10.95,706.98,1
+
+
+import ast
 
 class Moment:
 
     def __init__(self, lineFromCSV):    
         self.lineFromCSV = lineFromCSV
         self.momentArray = []
-        self.momentLabel :str = 0  # Initialize the label to 0
+        self.momentLabel = 0  # Initialize the label to 0
 
     def fillMomentInfoFromCSVLine(self):
-        import json
-
-        # Split the CSV line by comma to separate the values
-        values = self.lineFromCSV.split(',')
-
-        # Parse the spatial data from the first element (a JSON string)
-        spatial_data = json.loads(values[0])
-
-        # Extract the 'x' and 'y' values from the spatial data and append to momentArray
-        for point in spatial_data:
-            x_value = point['x']
-            y_value = point['y']
-            self.momentArray.extend([x_value, y_value])
-
-        # Parse the 'z' value from the second element (a JSON string)
-        z_data = json.loads(values[1])
-        z_value = z_data.get('z', 0.0)  # Default to 0.0 if 'z' is missing
-        self.momentArray.append(z_value)
-
-        # Extract and assign the temporal values
-        shot_clock = float(values[2])
-        game_clock = float(values[3])
-
-        # Populate the momentArray with the temporal values
-        self.momentArray.extend([shot_clock, game_clock])
-
-        # Extract and assign the label from the last column
-        try:
-            self.momentLabel = int(values[-1])
-        except ValueError:
-            # Handle invalid label value here
-            self.momentLabel = 0  # Default to 0 for invalid labels
+        # Extract the string containing CSV data from the tuple
 
 
-# FIX LATER
+        playerLocations = ast.literal_eval(self.lineFromCSV[0])
+        ballLocation = ast.literal_eval(self.lineFromCSV[1])
+        shotClock = self.lineFromCSV[2]
+        gameClock = self.lineFromCSV[3]
+
+        label = self.lineFromCSV[4]
+        
+        # add player locations
+
+        for eachPlayer in playerLocations:
+            self.momentArray.append(eachPlayer["x"])
+            self.momentArray.append(eachPlayer["y"])
+
+        # add ball location
+        
+        self.momentArray.append(ballLocation["x"])
+        self.momentArray.append(ballLocation["y"])
+        self.momentArray.append(ballLocation["z"])
+
+        # add shot and game clock
+
+        self.momentArray.append(shotClock)
+        self.momentArray.append(gameClock)
+
+
+        # add the label
+
+        self.momentLabel = label
+
+# Example usage
+
+csv_line = "[{'x': 81.67902, 'y': 18.37563}, {'x': 89.80558, 'y': 31.86329}, {'x': 80.31479, 'y': 31.49464}, {'x': 69.50902, 'y': 2.11084}, {'x': 79.07408, 'y': 26.42447}, {'x': 74.55269, 'y': 13.83294}, {'x': 83.27226, 'y': 44.45603}, {'x': 79.66844, 'y': 33.28058}, {'x': 70.63343, 'y': 0.09149}, {'x': 59.74416, 'y': 33.44953}]","{'x': 89.12535, 'y': 25.66681, 'z': 8.61488}",10.95,706.98,1
+m1 = Moment(csv_line)
+m1.fillMomentInfoFromCSVLine()
+
+print(m1.momentArray)
+print(m1.momentLabel)

@@ -2,7 +2,7 @@ import json
 import math
 
 # Define the path to your JSON file
-json_file_path = r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Data_Preprocessing\PossessionTracker\0021500524.json"
+json_file_path = r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Datasets\0021500524.json"
 
 # Open and read the JSON file
 with open(json_file_path, "r") as json_file:
