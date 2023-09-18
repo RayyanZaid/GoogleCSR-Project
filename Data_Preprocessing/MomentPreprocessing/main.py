@@ -41,19 +41,18 @@ def add_seconds_to_time(time_str, seconds_to_add):
         seconds -= 60
     
     # Determine the format for the updated time
-    if minutes >= 10:
-        updated_time_str = f"{minutes}:{seconds:02}"
+    if minutes == 0:
+        updated_time_str = f"{seconds:02}"
     else:
-        updated_time_str = f"{minutes}:{seconds}"
+        updated_time_str = f"{minutes}:{seconds:02}"
+    
+    # Add '0:' prefix if necessary
+    if len(updated_time_str) == 2:
+        updated_time_str = f"0:{updated_time_str}"
     
     return updated_time_str
 
 
-# Example usage:
-original_time = "11:05"
-seconds_to_add = 2
-updated_time = add_seconds_to_time(original_time, seconds_to_add)
-print(updated_time)  # Output: "11:07"
 
 
 
@@ -84,6 +83,9 @@ class MomentPreprocessing:
             timeStamp = eachEvent[6]
             eventNum = eachEvent[2]
 
+            if timeStamp == "8:07":
+                print()
+            
         # Field Goal Attempt
             if eventNum == 1 or eventNum == 2:
                 print("Field Goal Attempt")
@@ -99,7 +101,6 @@ class MomentPreprocessing:
                 continue
 
             self.NBA_API_MAP[(quarter,timeStamp)] = eventNum
-
 
             self.lastAnnotationNum = "0"
             self.lastGameClockNum = "720.00"
@@ -179,6 +180,8 @@ class MomentPreprocessing:
         else:
             timeStampOfMoment = f"{minutes}:{seconds:02}"
 
+        if minutes == 0:
+            print()
         if timeStampOfMoment == '12:00':
             return 0
 
