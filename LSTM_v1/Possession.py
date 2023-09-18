@@ -10,6 +10,8 @@ class Possession:
 
         self.temporalWindows = []
 
+        self.hasTerminalAction = False
+
 
 
     def addMoment(self, moment):

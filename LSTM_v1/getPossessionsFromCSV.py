@@ -91,6 +91,8 @@ def getData():
                 if currentShotClock > previousShotClock:
                     afterTerminalAction = False
                     currentPossession.addMoment(moment)
+                    allPossessions.append(currentPossession)
+                    currentPossession = Possession()
                     possessionCounter+=1
                 
                 previousShotClock = currentShotClock
@@ -99,16 +101,15 @@ def getData():
                 continue
 
 
-            if currentShotClock > previousShotClock or isTerminalAction:
+            if currentShotClock > previousShotClock:
                 
+
                 allPossessions.append(currentPossession)
                 currentPossession = Possession()
+                possessionCounter+=1
+               
 
-                if not isTerminalAction:
-                    
-                    possessionCounter+=1
-
-                if isTerminalAction:
+            if isTerminalAction:
                     afterTerminalAction = True
                     rowNumber += 1
                     continue

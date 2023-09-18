@@ -86,24 +86,45 @@ class MomentPreprocessing:
             if timeStamp == "8:07":
                 print()
             
-        # Field Goal Attempt
             if eventNum == 1 or eventNum == 2:
+
+                eventNum = 1 # FG attempt
                 print("Field Goal Attempt")
                 timeStamp = add_seconds_to_time(timeStamp, 1)
 
+
             elif eventNum == 5:
+
+                eventNum = 4 # turnover
                 print("Turnover")
             
             elif eventNum == 6:
-                print("Foul")
+
+                # check index 7 and index 9 to see if it's a regular or shooting foul
+                
+                if eachEvent[7] is not None:
+                    if "S.FOUL" in eachEvent[7]:
+                        eventNum = 2
+                    elif "P.FOUL" in eachEvent[7]:
+                        eventNum = 3
+                    else:
+                        continue
+                else:
+                    if "S.FOUL" in eachEvent[9]:
+                        eventNum = 2
+                    elif "P.FOUL" in eachEvent[9]:
+                        eventNum = 3
+                    else:
+                        continue
+
 
             else:
                 continue
 
             self.NBA_API_MAP[(quarter,timeStamp)] = eventNum
 
-            self.lastAnnotationNum = "0"
-            self.lastGameClockNum = "720.00"
+        self.lastAnnotationNum = "0"
+        self.lastGameClockNum = "720.00"
 
 
     def read_json(self):
