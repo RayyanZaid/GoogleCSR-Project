@@ -10,7 +10,8 @@ class Possession:
 
         self.temporalWindows = []
 
-        self.hasTerminalAction = False
+
+        self.terminalActionIndex = -1
 
 
 

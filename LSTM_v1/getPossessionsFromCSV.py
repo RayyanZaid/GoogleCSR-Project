@@ -53,7 +53,7 @@ from Moment import Moment
 from typing import List
 from Possession import Possession
 
-# Define your functions and classes here
+
 
 def getData():
     csv_file_path = r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Data_Preprocessing\moments.csv"
@@ -90,11 +90,12 @@ def getData():
 
                 if currentShotClock > previousShotClock:
                     afterTerminalAction = False
+                    
                     currentPossession.addMoment(moment)
                     allPossessions.append(currentPossession)
                     currentPossession = Possession()
                     possessionCounter+=1
-                
+                currentPossession.addMoment(moment)
                 previousShotClock = currentShotClock
                     
                 rowNumber += 1
@@ -112,6 +113,8 @@ def getData():
             if isTerminalAction:
                     afterTerminalAction = True
                     rowNumber += 1
+                    currentPossession.addMoment(moment)
+                    currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
                     continue
 
             if currentShotClock == previousShotClock:
@@ -126,7 +129,7 @@ def getData():
             rowNumber += 1
             previousShotClock = currentShotClock
 
-    print("DONE")
+    return allPossessions
 
 if __name__ == "__main__":
     getData()

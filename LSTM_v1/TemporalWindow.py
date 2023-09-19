@@ -10,4 +10,4 @@ class TemporalWindow:
     def __init__(self) -> None:
         
         self.moments : List[Moment] = []
-        self.label : Label = Label()
+        self.label : Label = Label() 
