@@ -174,7 +174,7 @@ class MomentPreprocessingClass:
                         moment_data["annotation"] = str(annotation)
                     
                     else:
-                       moment_data["annotation"] = 0
+                       moment_data["annotation"] = 0.0
 
                     self.lastAnnotationNum = annotation
 

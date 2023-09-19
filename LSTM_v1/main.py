@@ -22,12 +22,13 @@
 
 # 5) Input each temporal window into the LSTM
 
+from typing import List
+import numpy as np
 
 from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
 from Possession import Possession
 from getPossessionsFromCSV import getData
 from Moment import Moment
-from typing import List
 from TemporalWindow import TemporalWindow
 # 1) Read JSON and preprocess the data into a CSV
 
@@ -78,7 +79,7 @@ def createTemporalWindows(possessions: List[Possession]):
                 temporalWindows.insert(0, temporalWindow)
 
             temporalWindow = TemporalWindow()
-            temporalWindow.moments = eachPossession.moments[temporalWindowStartIndex + 1 - remainder: temporalWindowStartIndex]
+            temporalWindow.moments = eachPossession.moments[temporalWindowStartIndex: temporalWindowStartIndex+remainder]
             temporalWindow.label = eachPossession.moments[temporalWindowStartIndex].momentLabel
             temporalWindows.insert(0, temporalWindow)
 
@@ -89,3 +90,43 @@ def createTemporalWindows(possessions: List[Possession]):
 createTemporalWindows(possessions)
 
 
+# 4) Process data so that it's in a input matrix : output vector format
+
+
+# This function:
+    # Input : List of Possessions with Temporal Windows updated
+    # Ouput : the input matrix and output vector
+
+def processDataForLSTM(possessions : List[Possession]):
+
+    inputTemporalWindowMatrix = []
+    outputTemporalWindowLabels = []
+
+    for eachPossession in possessions:
+
+        for eachTemporalWindow in eachPossession.temporalWindows:
+
+            momentObjectsOfTemporalWindow : List[Moment] = eachTemporalWindow.moments
+
+            momentDataOfTemporalWindow = []
+            labelDataOfTemporalWindow = [eachTemporalWindow.label]
+
+            for eachMoment in momentObjectsOfTemporalWindow:
+                momentDataOfTemporalWindow.append(eachMoment.momentArray)
+
+            
+            inputTemporalWindowMatrix.append(momentDataOfTemporalWindow)
+            outputTemporalWindowLabels.append(labelDataOfTemporalWindow)
+
+            
+
+
+    return inputTemporalWindowMatrix, outputTemporalWindowLabels
+
+inputMatrix, outputVector = processDataForLSTM(possessions)
+
+# inputMatrix = np.array(inputMatrix)
+outputVector = np.array(outputVector)
+
+# print(inputMatrix.shape)
+print(outputVector.shape)
