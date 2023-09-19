@@ -4,7 +4,23 @@
 
 # 3) Go through possessions and create Temporal Windows
 
-# 4) Input each temporal window into the LSTM
+# 4) Process data so that it's in a input matrix : output vector format
+    # ex.
+    # Temporal Window Moments       :   Temporal Window Labels    
+    #       [                           [
+    #           [[25D], [25D]],             [0],
+    #           [[25D], [25D]],             [1],
+    #       ]                           ]
+
+    # INPUT:
+    # Each element is a Temporal Window that consists of several moments
+    # Each Moment consists of 25 pieces of data
+
+    # OUTPUT:
+    # Each element is the output label corresponding to the input temporal window
+
+
+# 5) Input each temporal window into the LSTM
 
 
 from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
