@@ -1,6 +1,6 @@
 from typing import List
 from Moment import Moment
-
+from TemporalWindow import TemporalWindow
 # Starting Temporal Window Code
 class Possession:
 

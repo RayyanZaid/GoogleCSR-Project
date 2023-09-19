@@ -56,7 +56,7 @@ from Possession import Possession
 
 
 def getData():
-    csv_file_path = r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Data_Preprocessing\moments.csv"
+    csv_file_path = r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\csv_files\moments.csv"
 
     with open(csv_file_path, mode='r', newline='') as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -79,8 +79,6 @@ def getData():
 
             isTerminalAction = False
 
-            if possessionCounter == 2:
-                print()
 
             if moment.momentLabel != 0:
                 isTerminalAction = True
