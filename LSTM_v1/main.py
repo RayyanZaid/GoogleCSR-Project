@@ -31,57 +31,49 @@ possessions : List[Possession] = getData()
 
 T = 128 
 
-def createTemporalWindows(possessions : List[Possession]):
-    
-    temporalWindows : List[TemporalWindow] = []
-
-
+def createTemporalWindows(possessions: List[Possession]):
     for eachPossession in possessions:
-
         terminalActionIndex = eachPossession.terminalActionIndex
-
-        # null terminal action
-
-        temporalWindow : List[Moment] = []
+        temporalWindows = []
 
         if terminalActionIndex == -1:
-            # collect the last "T" moments of the possesion
-            # that will be the only temporal window from this possession
-
-            
-            if len(eachPossession.moments) >= 128:
-                temporalWindow = eachPossession.moments[-128:]
+            if len(eachPossession.moments) >= T:
+                temporalWindow = TemporalWindow()
+                temporalWindow.moments = eachPossession.moments[-T:]
+                temporalWindow.label = 0
+                temporalWindows.append(temporalWindow)
             else:
-                temporalWindow = eachPossession.moments
-
-            eachPossession.temporalWindows.append(temporalWindow)
-
-            print("Added Temporal Window of Possesion with NO Terminal Action")
-
+                temporalWindow = TemporalWindow()
+                temporalWindow.moments = eachPossession.moments
+                temporalWindow.label = 0
+                temporalWindows.append(temporalWindow)
         else:
-            numTemporalWindows = int((terminalActionIndex+1) / T)
-            remainder = (terminalActionIndex+1) % T
-
-            endIndex = terminalActionIndex + 1 - (numTemporalWindows * T + remainder)
-
+            numTemporalWindows = int((terminalActionIndex + 1) / T)
+            remainder = (terminalActionIndex + 1) % T
             currentIndex = terminalActionIndex
 
             for i in range(numTemporalWindows):
                 temporalWindowStartIndex = currentIndex - T
                 temporalWindowEndIndex = currentIndex
-                temporalWindow = eachPossession.moments[temporalWindowStartIndex+1:temporalWindowEndIndex+1]
+                temporalWindow = TemporalWindow()
+                temporalWindow.moments = eachPossession.moments[temporalWindowStartIndex + 1:temporalWindowEndIndex + 1]
+                temporalWindow.label = eachPossession.moments[temporalWindowEndIndex].momentLabel
                 currentIndex = currentIndex - T
-                eachPossession.temporalWindows.insert(0,temporalWindow)
-            
-            temporalWindow = eachPossession.moments[temporalWindowStartIndex+1-remainder:temporalWindowStartIndex]
-            eachPossession.temporalWindows.insert(0,temporalWindow)
+                temporalWindows.insert(0, temporalWindow)
 
-            print("Added Temporal Windows of Possesion with Terminal Action")
+            temporalWindow = TemporalWindow()
+            temporalWindow.moments = eachPossession.moments[temporalWindowStartIndex + 1 - remainder: temporalWindowStartIndex]
+            temporalWindow.label = eachPossession.moments[temporalWindowStartIndex].momentLabel
+            temporalWindows.insert(0, temporalWindow)
 
-        
+        eachPossession.temporalWindows = temporalWindows
+        print("Added Temporal Windows of Possession with Terminal Action")
 
-
-
+# Now call the function
 createTemporalWindows(possessions)
 
-print()
+
+label = possessions[1].temporalWindows[2].label
+
+print(label)
+
