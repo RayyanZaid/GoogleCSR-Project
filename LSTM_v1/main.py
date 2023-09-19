@@ -73,7 +73,3 @@ def createTemporalWindows(possessions: List[Possession]):
 createTemporalWindows(possessions)
 
 
-label = possessions[1].temporalWindows[2].label
-
-print(label)
-
