@@ -133,7 +133,7 @@ class MomentPreprocessingClass:
 
     def iterateThroughEvents(self):
         # Open the CSV file in append mode
-        with open("csv_files/moments.csv", mode="a", newline="") as csv_file:
+        with open(r"D:\coding\GoogleCSR-Project\csv_files\moments.csv", mode="a", newline="") as csv_file:
 
 
             fieldnames = ["playerLocations", "ballLocation", "shot_clock", "game_clock", "annotation"]

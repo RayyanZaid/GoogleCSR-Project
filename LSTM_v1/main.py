@@ -38,13 +38,16 @@ from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
 
 # Already preprocessed into CSV
 
-obj = MomentPreprocessingClass(r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\Datasets\0021500524.json")
+obj = MomentPreprocessingClass(r"D:\coding\GoogleCSR-Project\Datasets\0021500524.json")
 obj.read_json()
 obj.iterateThroughEvents()
 
-# 2) Read from CSV and create possessions
+
 
 # %% Cell 2
+
+# 2) Read from CSV and create possessions
+
 possessions : List[Possession] = getData()
 
 
@@ -113,6 +116,7 @@ outputVector = np.array(outputVector) # SHAPE: number of windows 1500, 1
 # %% Cell 7 -- Split into Train, Test, and Validation
 
 from sklearn.model_selection import train_test_split
+from keras.utils import to_categorical
 
 numberOfTemporalWindows = inputMatrix.shape[0]
 
@@ -120,9 +124,11 @@ numberOfTemporalWindows = inputMatrix.shape[0]
 # 10% Validation
 # 10% Test
 
-X_train, X_rem, y_train, y_rem = train_test_split(inputMatrix,outputVector,train_size=0.8,random_state=42)
-
+X_train, X_rem, y_train, y_rem = train_test_split(inputMatrix, outputVector, train_size=0.8, random_state=42)
 X_valid, X_test, y_valid, y_test = train_test_split(X_rem, y_rem, test_size=0.5)
+
+y_train_encoded = to_categorical(y_train, num_classes=5)
+y_valid_encoded = to_categorical(y_valid, num_classes=5)
 
 # %% 
 
@@ -132,28 +138,29 @@ X_valid, X_test, y_valid, y_test = train_test_split(X_rem, y_rem, test_size=0.5)
 from keras.models import Sequential # Sequential Model
 from keras.layers import *
 from keras.callbacks import ModelCheckpoint # To save model
-from keras.losses import MeanSquaredError # For loss function
-from keras.metrics import RootMeanSquaredError
+from keras.losses import CategoricalCrossentropy # For loss function
+from keras.metrics import CategoricalAccuracy
 from keras.optimizers import Adam
 
 # %% Cell 9 -- Create Model
 
 model1 = Sequential()
-model1.add(InputLayer((128,25)))
-model1.add((LSTM(64)))
-model1.add(Dense(8,'relu'))
-model1.add(Dense(5,activation='softmax'))
+model1.add(InputLayer((128, 25)))
+model1.add(LSTM(64))
+model1.add(Dense(8, activation='relu'))
+model1.add(Dense(5, activation='softmax'))
 
 model1.summary()
 
 # %% Cell 10 -- Model Callbacks and Compilation
 
-cp = ModelCheckpoint('model1/' , save_best_only=True) # saves model with lowest validation loss
-model1.compile(loss=MeanSquaredError(), optimizer=Adam(learning_rate=0.0001), metrics = [RootMeanSquaredError()]) # higher the learning rate, the faster the model will try to decrease the loss function
+cp = ModelCheckpoint('model1/', save_best_only=True) # saves model with lowest validation loss
+model1.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.0001), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
 
 # %% Cell 11 -- Fitting
 
-model1.fit(X_train, y_train, validation_data=(X_valid, y_valid) , epochs = 10, callbacks=[cp])
+model1.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=10, callbacks=[cp])
+
 
 # %% Cell 12 -- Using the model
 
@@ -161,9 +168,33 @@ from keras.models import load_model
 
 model1 = load_model('model1/')
 
+train_predictions = model1.predict(X_train)
+train_predicted_classes = np.argmax(train_predictions, axis=1)
 
-train_predictions = model1.predict(X_train).flatten()
-# train_results = pd.DataFrame(data={'Train Predictions' : train_predictions , 
-#                                    'Actuals' : y_train
-#                                 })
+train_results = pd.DataFrame(data={'Train Predicted Classes': train_predicted_classes, 'Actuals': y_train})
+print()
+# %%
+
+# Cell 13 -- Accuracy 
+
+from sklearn.metrics import accuracy_score
+
+# Predict on the test data
+test_predictions = model1.predict(X_test)
+
+# Get the predicted classes by taking the index of the maximum value along axis 1
+test_predicted_classes = np.argmax(test_predictions, axis=1)
+
+filtered_indices = (y_test != 0) & (y_test != 1) 
+filtered_test_predicted_classes = test_predicted_classes[filtered_indices]
+filtered_y_test = y_test[filtered_indices]
+
+# Calculate accuracy
+accuracy = accuracy_score(filtered_y_test, filtered_test_predicted_classes)
+
+# Print the accuracy
+print("Test Accuracy (Excluding Labels 0 and 1):", accuracy)
+
+
+
 # %%

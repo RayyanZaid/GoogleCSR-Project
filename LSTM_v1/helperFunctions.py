@@ -72,7 +72,7 @@ def processDataForLSTM(possessions : List[Possession]):
             momentObjectsOfTemporalWindow : List[Moment] = eachTemporalWindow.moments
 
             momentDataOfTemporalWindow = []
-            labelDataOfTemporalWindow = [eachTemporalWindow.label]
+            labelDataOfTemporalWindow = eachTemporalWindow.label
 
             for eachMoment in momentObjectsOfTemporalWindow:
 

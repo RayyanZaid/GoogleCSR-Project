@@ -56,7 +56,7 @@ from Possession import Possession
 
 
 def getData():
-    csv_file_path = r"C:\Users\rayya\OneDrive\Desktop\GoogleCSR-Project\csv_files\moments.csv"
+    csv_file_path = r"D:\coding\GoogleCSR-Project\csv_files\moments.csv"
 
     with open(csv_file_path, mode='r', newline='') as csv_file:
         csv_reader = csv.reader(csv_file)
