@@ -6,12 +6,64 @@ from Team import Team
 from matplotlib import animation
 from matplotlib.patches import Circle, Rectangle, Arc
 
+from typing import List
+
+from keras.models import load_model
+model1 = load_model(r"D:\coding\GoogleCSR-Project\LSTM_v1\model1")
+
+
+def momentObjectToArray(momentObject : Moment) -> List[float]:
+    players = momentObject.players
+    ball = momentObject.ball
+    shot_clock = momentObject.shot_clock
+    game_clock = momentObject.game_clock
+
+    momentArray : List[float] = []
+    for eachPlayer in players:
+        momentArray.append(eachPlayer.x)
+        momentArray.append(eachPlayer.y)
+    momentArray.append(ball.x)
+    momentArray.append(ball.y)
+    momentArray.append(ball.radius)
+
+    momentArray.append(shot_clock)
+    momentArray.append(game_clock)
+
+    return momentArray
+
+# Goal : Read through each moment 
+def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMoment : Moment) -> List[List[float]]:
+
+    currentMomentArray = 0
+    if len(listOfMoments) >= 128:
+        listOfMoments.pop(0)
+    
+    listOfMoments.append(currentMoment)
+
+    return listOfMoments
+
+
+# only works if length of list of moments is == 128
+def predict(listOfMoments : List[List[float]]):
+    
+
+    predictions = []
+    if(len(listOfMoments) == 128):
+        predictions = model1.predict(listOfMoments).flatten()
+    
+    else:
+        predictions = [0.0,0.0,0.0,0.0,0.0]
+        
+    
+    return predictions
+
 class Event:
     """A class for handling and showing events"""
 
     def __init__(self, event):
         moments = event['moments']
         self.moments = [Moment(moment) for moment in moments]
+        self.listOfMoments : List[List[float]] = []
         home_players = event['home']['players']
         guest_players = event['visitor']['players']
         players = home_players + guest_players
@@ -43,12 +95,28 @@ class Event:
         ball_circle.radius = moment.ball.radius / Constant.NORMALIZATION_COEF
         return player_circles, ball_circle
 
+
+
+    # LIVE RESULTS FUNCTION
+
     def update_bar_graph(self, i, bar_plot):
-        # Update bar graph values randomly
+        momentObject : Moment = self.moments[i]
+
+        momentArray : List[float] = momentObjectToArray(momentObject)
+
+        self.listOfMoments : List[List[float]] = convertMomentstoModelInput(self.listOfMoments,momentArray)
+
+        predictions = predict(self.listOfMoments)
+
+        print(predictions)
+        # while there are not 128 moments yet
         new_y_values = [random.uniform(0.0, 1.0) for _ in range(5)]
         for rect, new_height in zip(bar_plot.patches, new_y_values):
             rect.set_height(new_height)
         return bar_plot
+
+
+
 
     def show(self):
         # Set up the main subplot for the court and bar graph

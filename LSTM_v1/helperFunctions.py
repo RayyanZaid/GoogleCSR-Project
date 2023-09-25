@@ -3,7 +3,7 @@ import numpy as np
 
 from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
 from Possession import Possession
-from getPossessionsFromCSV import getData
+from getPossessionsFromJSON import getData
 from Moment import Moment
 from TemporalWindow import TemporalWindow
 

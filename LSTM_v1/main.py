@@ -27,7 +27,7 @@
 from typing import List
 import numpy as np
 from Possession import Possession
-from getPossessionsFromCSV import getData
+from getPossessionsFromJSON import getData
 from Moment import Moment
 import helperFunctions 
 from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
@@ -38,9 +38,9 @@ from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
 
 # Already preprocessed into CSV
 
-obj = MomentPreprocessingClass(r"D:\coding\GoogleCSR-Project\Datasets\0021500524.json")
-obj.read_json()
-obj.iterateThroughEvents()
+# obj = MomentPreprocessingClass(r"D:\coding\GoogleCSR-Project\Datasets\0021500524.json")
+# obj.read_json()
+# obj.iterateThroughEvents()
 
 
 
