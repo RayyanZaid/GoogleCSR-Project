@@ -1,6 +1,7 @@
 import os
 import py7zr
 
+ 
 
 
 def delete_files_in_folder(folder_path):
@@ -21,43 +22,63 @@ def delete_files_in_folder(folder_path):
 
 
 
-# Define the path to the folder containing .7z files
-folder_path_with_7z = r"D:\coding\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
+def train(inputStartIndex, inputEndIndex):
 
-# Define the destination folder where you want to extract files
-destination_folder = r"D:\coding\GoogleCSR-Project\Dataset"
+    folder_path_with_7z = r"D:\coding\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
+    destination_folder = r"D:\coding\GoogleCSR-Project\Dataset"
 
-# Initialize a counter to keep track of the number of files processed
-counter = 0
+    batch_size = 5  # Number of files to process in each batch
+    counter = 0
 
-# Loop until there are no more .7z files in the folder
-while True:
-    # Find .7z files in the folder
-    sevenz_files = [filename for filename in os.listdir(folder_path_with_7z) if filename.endswith('.7z')]
+    sevenz_files = [filename for filename in os.listdir(folder_path_with_7z) if filename.endswith('.7z')][inputStartIndex-1:inputEndIndex]
 
-    # If there are no more .7z files, break out of the loop
     if not sevenz_files:
-        break
+        exit()
 
-    # Process up to 5 .7z files at a time
-    for filename in sevenz_files[:5]:
-        file_path = os.path.join(folder_path_with_7z, filename)
+    while counter < len(sevenz_files):
+        
 
-        # Extract the .7z file to the destination folder
-        with py7zr.SevenZipFile(file_path, mode='r') as archive:
-            archive.extractall(destination_folder)
-            print(f"Extracted {filename} to {destination_folder}")
+        # Process files in batches
+        startIndex = counter
+        endIndex = startIndex + batch_size
 
-        # Increment the counter
-        counter += 1
+        if endIndex >= len(sevenz_files):
+            endIndex = len(sevenz_files)
 
-        # Delete the extracted .7z file
-    delete_files_in_folder(destination_folder)
+        for filename in sevenz_files:
+            file_path = os.path.join(folder_path_with_7z, filename)
 
-    extracted_files = os.listdir(destination_folder)
-    print(f"Extracted files in {destination_folder}: {', '.join(extracted_files)}")
-    
-    print(f"Deleted {destination_folder} to save storage space")
+            with py7zr.SevenZipFile(file_path, mode='r') as archive:
+                archive.extractall(destination_folder)
+                print(f"Extracted {filename} to {destination_folder}")
 
-# Print the total number of .7z files processed
-print(f"Processed {counter} .7z files in folder: {folder_path_with_7z}")
+            counter += 1
+
+
+        delete_files_in_folder(destination_folder)
+
+        extracted_files = os.listdir(destination_folder)
+        print(f"Extracted files in {destination_folder}: {', '.join(extracted_files)}")
+        print(f"Deleted {destination_folder} to save storage space")
+
+
+
+
+
+        if endIndex == len(sevenz_files) - 1:
+            break
+
+    print(f"Processed {counter} .7z files in folder: {folder_path_with_7z}")
+
+
+
+
+train(1,5)
+
+train(630,633)
+
+
+
+# NOTES
+# Trained : 0 -- 5 (CHA at TOR) -- (PHI at LAL)
+# Next game to train : 6 (BKN at BOS)
