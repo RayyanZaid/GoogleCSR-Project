@@ -6,3 +6,4 @@ LiveResults/*.json
 LiveResults/__pycache__
 csv_files/*.csv
 Datasets/*.json
+model1

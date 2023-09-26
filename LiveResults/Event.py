@@ -5,31 +5,19 @@ from Moment import Moment
 from Team import Team
 from matplotlib import animation
 from matplotlib.patches import Circle, Rectangle, Arc
-
+import numpy as np
 from typing import List
 
 from keras.models import load_model
 model1 = load_model(r"D:\coding\GoogleCSR-Project\LSTM_v1\model1")
 
-
-def momentObjectToArray(momentObject : Moment) -> List[float]:
-    players = momentObject.players
-    ball = momentObject.ball
-    shot_clock = momentObject.shot_clock
-    game_clock = momentObject.game_clock
-
-    momentArray : List[float] = []
-    for eachPlayer in players:
-        momentArray.append(eachPlayer.x)
-        momentArray.append(eachPlayer.y)
-    momentArray.append(ball.x)
-    momentArray.append(ball.y)
-    momentArray.append(ball.radius)
-
-    momentArray.append(shot_clock)
-    momentArray.append(game_clock)
-
-    return momentArray
+mapping = {
+    0.0: "null",
+    1.0: "FG Try",
+    2.0: "Shoot F.",
+    3.0: "Nonshoot F.",
+    4.0: "Turnover"
+}
 
 # Goal : Read through each moment 
 def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMoment : Moment) -> List[List[float]]:
@@ -39,23 +27,29 @@ def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMoment 
         listOfMoments.pop(0)
     
     listOfMoments.append(currentMoment)
-
+    np_list = np.array(listOfMoments)
+    print(np_list.shape)
     return listOfMoments
 
 
 # only works if length of list of moments is == 128
-def predict(listOfMoments : List[List[float]]):
-    
-
+def predict(listOfMoments: List[List[float]]):
     predictions = []
-    if(len(listOfMoments) == 128):
-        predictions = model1.predict(listOfMoments).flatten()
-    
-    else:
-        predictions = [0.0,0.0,0.0,0.0,0.0]
+
+    # Check if the input data has the correct shape
+    if len(listOfMoments) == 128:
+        # Convert the list of moments to a numpy array and add a batch dimension
         
-    
+
+        # Predict with the model
+        predictions = model1.predict([listOfMoments])
+        predictions = predictions[0]
+
+    else:
+        predictions = [0.0, 0.0, 0.0, 0.0, 0.0]
+
     return predictions
+
 
 class Event:
     """A class for handling and showing events"""
@@ -75,7 +69,24 @@ class Event:
         # Example: 101108: ['Chris Paul', '3']
         self.player_ids_dict = dict(zip(player_ids, values))
 
-    def update_radius(self, i, player_circles, ball_circle, annotations, clock_info):
+        self.prev_i = -1
+        self.prev_player_circles = None
+        self.prev_ball_circle = None
+        self.prev_bar_plot = None
+
+    def update_both(self, i, player_circles, ball_circle, annotations, clock_info, bar_plot):
+        momentObject: Moment = self.moments[i]
+        
+        if i == self.prev_i:
+            return self.prev_player_circles, self.prev_ball_circle, self.prev_bar_plot
+        momentObject.fillMomentFromJSON()
+
+        momentArray: List[float] = momentObject.momentArray
+
+        self.listOfMoments: List[List[float]] = convertMomentstoModelInput(self.listOfMoments, momentArray)
+
+        # Update player positions on the court
+
         moment = self.moments[i]
         for j, circle in enumerate(player_circles):
             circle.center = moment.players[j].x, moment.players[j].y
@@ -89,31 +100,23 @@ class Event:
                             moment.shot_clock)
             else:
                 clock_test = "No time"
-                
+
             clock_info.set_text(clock_test)
         ball_circle.center = moment.ball.x, moment.ball.y
         ball_circle.radius = moment.ball.radius / Constant.NORMALIZATION_COEF
-        return player_circles, ball_circle
 
-
-
-    # LIVE RESULTS FUNCTION
-
-    def update_bar_graph(self, i, bar_plot):
-        momentObject : Moment = self.moments[i]
-
-        momentArray : List[float] = momentObjectToArray(momentObject)
-
-        self.listOfMoments : List[List[float]] = convertMomentstoModelInput(self.listOfMoments,momentArray)
-
+        # Update the bar graph
         predictions = predict(self.listOfMoments)
-
-        print(predictions)
-        # while there are not 128 moments yet
-        new_y_values = [random.uniform(0.0, 1.0) for _ in range(5)]
-        for rect, new_height in zip(bar_plot.patches, new_y_values):
+        for rect, new_height in zip(bar_plot.patches, predictions):
             rect.set_height(new_height)
-        return bar_plot
+
+        self.prev_i = i
+        self.prev_player_circles = player_circles
+        self.prev_ball_circle = ball_circle
+        self.prev_bar_plot = bar_plot
+
+        return player_circles, ball_circle, bar_plot
+
 
 
 
@@ -151,23 +154,19 @@ class Event:
 
         # Create the initial bar graph with random values
         y_values = [random.uniform(0.0, 1.0) for _ in range(5)]
-        bar_plot = ax2.bar(range(5), y_values, tick_label=['0', '1', '2', '3', '4'])
+        # bar_plot = ax2.bar(range(5), y_values, tick_label=['0', '1', '2', '3', '4'])
+        bar_plot = ax2.bar(range(5), y_values, tick_label=[mapping[0], mapping[1], mapping[2], mapping[3], mapping[4]])
         ax2.set_xlabel('X Labels')
         ax2.set_ylabel('Y Values')
         ax2.set_title('Randomized Bar Graph')
 
         # Animation
         anim = animation.FuncAnimation(
-            fig, self.update_radius,
-            fargs=(player_circles, ball_circle, annotations, clock_info),
-            frames=len(self.moments), interval=Constant.INTERVAL)
-        
-        # Animation for updating the bar graph
-        anim_bar_graph = animation.FuncAnimation(
-            fig, self.update_bar_graph,
-            fargs=(bar_plot,),
-            frames=len(self.moments), interval=Constant.INTERVAL)
+        fig, self.update_both,
+        fargs=(player_circles, ball_circle, annotations, clock_info, bar_plot),
+        frames=len(self.moments), interval=Constant.INTERVAL)
 
+        
         plt.show()
 
 # Example usage:

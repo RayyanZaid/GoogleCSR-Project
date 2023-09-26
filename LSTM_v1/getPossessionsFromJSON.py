@@ -225,6 +225,7 @@ def getData():
 
             momentObject = Moment(eachMoment)
             momentObject.fillMomentFromJSON()
+            currentShotClock = momentObject.shot_clock
             
             if(momentPreprocessingClass.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
                         continue
