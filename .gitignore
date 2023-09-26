@@ -2,3 +2,8 @@
 LSTM_v1/__pycache__
 LSTM_v1/MomentPreprocessing/__pycache__
 LSTM_v1/model1
+LiveResults/*.json
+LiveResults/__pycache__
+csv_files/*.csv
+Datasets/*.json
+model1

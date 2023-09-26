@@ -27,7 +27,7 @@
 from typing import List
 import numpy as np
 from Possession import Possession
-from getPossessionsFromCSV import getData
+from getPossessionsFromJSON import getData
 from Moment import Moment
 import helperFunctions 
 from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
@@ -38,9 +38,9 @@ from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
 
 # Already preprocessed into CSV
 
-obj = MomentPreprocessingClass(r"D:\coding\GoogleCSR-Project\Datasets\0021500524.json")
-obj.read_json()
-obj.iterateThroughEvents()
+# obj = MomentPreprocessingClass(r"D:\coding\GoogleCSR-Project\Datasets\0021500524.json")
+# obj.read_json()
+# obj.iterateThroughEvents()
 
 
 
@@ -92,14 +92,14 @@ mapping = {
 mapped_labels = percentage_counts.index.map(mapping)
 
 # Create a pie chart
-plt.pie(percentage_counts, labels=mapped_labels, autopct='%1.1f%%', startangle=140)
-
-# Add a title
+plt.pie(percentage_counts, labels=None, autopct='%1.1f%%', startangle=140)
 plt.title("Pie Chart of Label Percentages")
 
-# Show the plot
-plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+# Add legends outside the chart
+plt.legend(labels=mapped_labels, loc="center left", bbox_to_anchor=(1, 0.5))
+plt.axis('equal')
 plt.show()
+
 
 
 # %% Cell 6 -- Create numpy arrays
@@ -185,7 +185,8 @@ test_predictions = model1.predict(X_test)
 # Get the predicted classes by taking the index of the maximum value along axis 1
 test_predicted_classes = np.argmax(test_predictions, axis=1)
 
-filtered_indices = (y_test != 0) & (y_test != 1) 
+filtered_indices = (y_test != 2) & (y_test != 3) & (y_test != 4) 
+print("no")
 filtered_test_predicted_classes = test_predicted_classes[filtered_indices]
 filtered_y_test = y_test[filtered_indices]
 
