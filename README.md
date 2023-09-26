@@ -55,4 +55,23 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Start designing the LSTM <br>
 
+# Week 6 (9/18 — 9/22)
+
+[✔️] Finishing designing LSTM v1
+
+[✔️] Redo part of data preprocessing to make it more efficient
+
+[✔️] Start working on displaying Live Results with the player visuals  <br>
+
+# Week 7 (9/25 — 9/29)
+
+[✔️] Finish Live Results display <br>
+
+[] Create a system to train all 650 games
+
+[] Train the model
+
+[] Analyze results
+
+[] Document in research paper <br>
 
