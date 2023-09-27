@@ -166,7 +166,7 @@ model1.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded),
 
 from keras.models import load_model
 
-model1 = load_model('model1/')
+model1 = load_model(r"D:\coding\GoogleCSR-Project\model1")
 
 train_predictions = model1.predict(X_train)
 train_predicted_classes = np.argmax(train_predictions, axis=1)

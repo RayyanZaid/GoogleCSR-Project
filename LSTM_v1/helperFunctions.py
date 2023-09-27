@@ -95,24 +95,24 @@ def processDataForLSTM(possessions : List[Possession]):
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Masking
 
-def loadAndTrainLSTM(inputData, labelData):
+# def loadAndTrainLSTM(inputData, labelData):
 
-    model = Sequential()
+#     model = Sequential()
 
-    # Add a Masking layer to handle the masking automatically
-    model.add(Masking(mask_value=-1, input_shape=(128, 25)))  # Replace -1 with the appropriate mask value
+#     # Add a Masking layer to handle the masking automatically
+#     model.add(Masking(mask_value=-1, input_shape=(128, 25)))  # Replace -1 with the appropriate mask value
 
-    # Add the LSTM layer with mask support
-    model.add(LSTM(units=64, activation='tanh', return_sequences=False, input_shape=(128, 25), mask_zero=True))  
-    # Set mask_zero=True to handle masking
+#     # Add the LSTM layer with mask support
+#     model.add(LSTM(units=64, activation='tanh', return_sequences=False, input_shape=(128, 25), mask_zero=True))  
+#     # Set mask_zero=True to handle masking
 
-    # Add the output layer with sigmoid activation for binary classification
-    model.add(Dense(units=1, activation='sigmoid'))
+#     # Add the output layer with sigmoid activation for binary classification
+#     model.add(Dense(units=1, activation='sigmoid'))
 
-    # Compile the model
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    model.fit(inputData, labelData, epochs=10, batch_size=32)  
-    model.save("lstm_v1.h5")
+#     # Compile the model
+#     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+#     model.fit(inputData, labelData, epochs=10, batch_size=32)  
+#     model.save("lstm_v1.h5")
 
 
 from keras.models import load_model
