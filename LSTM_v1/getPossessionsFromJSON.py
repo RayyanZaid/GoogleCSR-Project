@@ -122,16 +122,13 @@ class MomentPreprocessingClass:
             
             quarter = eachEvent[4]
             timeStamp = eachEvent[6]
-            eventNum = eachEvent[2]
-
-            if timeStamp == "8:07":
-                print()
+            eventNum = eachEvent[2]                
             
             if eventNum == 1 or eventNum == 2:
 
                 eventNum = 1 # FG attempt
                 print("Field Goal Attempt")
-                timeStamp = add_seconds_to_time(timeStamp, 1)
+                timeStamp = add_seconds_to_time(timeStamp, 3)
 
 
             elif eventNum == 5:
@@ -141,7 +138,7 @@ class MomentPreprocessingClass:
             
             elif eventNum == 6:
 
-                # check index 7 and index 9 to see if it's a regular or shooting foul
+                # check index 7 (team 1) and index 9 (team 2) to see if it's a regular or shooting foul
                 
                 if eachEvent[7] is not None:
                     if "S.FOUL" in eachEvent[7]:
@@ -150,13 +147,15 @@ class MomentPreprocessingClass:
                         eventNum = 3
                     else:
                         continue
-                else:
+                elif eachEvent[9] is not None:
                     if "S.FOUL" in eachEvent[9]:
                         eventNum = 2
                     elif "P.FOUL" in eachEvent[9]:
                         eventNum = 3
                     else:
                         continue
+                else:  # for double techs lol
+                    continue
 
 
             else:
@@ -182,8 +181,6 @@ class MomentPreprocessingClass:
         else:
             timeStampOfMoment = f"{minutes}:{seconds:02}"
 
-        if minutes == 0:
-            print()
         if timeStampOfMoment == '12:00':
             return 0
 
@@ -197,8 +194,7 @@ class MomentPreprocessingClass:
 
 
 
-def getData():
-    json_path = r"D:\coding\GoogleCSR-Project\Datasets\0021500524.json"
+def getData(json_path):
 
     data_frame = pd.read_json(json_path)
 
