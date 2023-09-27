@@ -67,11 +67,12 @@ An end-to-end deep learning architecture used to give value to micro-actions in 
 
 [✔️] Finish Live Results display <br>
 
-[] Create a system to train all 650 games
+[✔️] Create a system to train all 650 games
 
 [] Train the model
 
 [] Analyze results
+  [] Not getting good results, need to use polar coordinates with respect to target court
 
 [] Document in research paper <br>
 
