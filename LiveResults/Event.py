@@ -80,6 +80,7 @@ class Event:
         if i == self.prev_i:
             return self.prev_player_circles, self.prev_ball_circle, self.prev_bar_plot
         momentObject.fillMomentFromJSON()
+        print(momentObject.whichSideIsOffensive())
 
         momentArray: List[float] = momentObject.momentArray
 

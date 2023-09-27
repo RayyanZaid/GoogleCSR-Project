@@ -59,6 +59,24 @@ class Moment:
 
         # add the label
 
+    def whichSideIsOffensive(self) -> str:
+
+        # halfcourt is at x = 47.0
+
+        # count how many are less than 47.0
+        
+        counter = 0
+
+        for eachPlayer in self.players:
+            x = eachPlayer[2]
+
+            if x <= 47.0:
+                counter +=1
+
+        if counter >= 5:
+            return "Left"
+        else:
+            return "Right"
     
 
 

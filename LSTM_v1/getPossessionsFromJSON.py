@@ -221,6 +221,7 @@ def getData(json_path):
 
             momentObject = Moment(eachMoment)
             momentObject.fillMomentFromJSON()
+            print(momentObject.whichSideIsOffensive())
             currentShotClock = momentObject.shot_clock
             
             if(momentPreprocessingClass.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
@@ -284,7 +285,7 @@ def getData(json_path):
     return allPossessions
 
 if __name__ == "__main__":
-    getData()
+    getData(r"D:\coding\GoogleCSR-Project\LiveResults\0021500497.json")
 
 
 
