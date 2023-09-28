@@ -41,3 +41,22 @@ class Moment:
             self.momentArray.append(float(720.00))
         else:
             self.momentArray.append(float(self.game_clock))
+
+    def whichSideIsOffensive(self) -> str:
+
+        # halfcourt is at x = 47.0
+
+        # count how many are less than 47.0
+        
+        counter = 0
+
+        for eachPlayer in self.players:
+            x = eachPlayer.x
+
+            if x <= 47.0:
+                counter +=1
+
+        if counter >= 5:
+            return "Left"
+        else:
+            return "Right"
