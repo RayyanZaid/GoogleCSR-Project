@@ -15,12 +15,17 @@ class Moment:
         self.players = [Player(player) for player in players]
         self.momentArray = []
         self.offensiveSide : str
-        self.possessingTeam : int
+        self.possessingTeamID : int
         self.leftHoop = np.array([5,25])
         self.rightHoop = np.array([89,25])
 
-    def fillMomentFromJSON(self):
+    def fillMomentFromJSON(self, currentTeamPossessionID : int):
+        
 
+
+        # 2 TASKS
+            # 1) take currentTeamPossessionID and put the players with that team number as the first 5
+            # 2) take the self.offensive side and make sure that each x,y coordinate is stored as polar coordinates
         
         # storing all 25 values into the moment Array (no label yet)
 
@@ -81,6 +86,5 @@ class Moment:
 
             if currDistance < shortestDistance:
                 shortestDistance = currDistance
-                self.possessingTeam = eachPlayer.team
+                self.possessingTeamID = eachPlayer.team.id
 
-        self.possessingTeam = self.possessingTeam.id

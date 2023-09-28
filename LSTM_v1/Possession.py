@@ -13,6 +13,12 @@ class Possession:
 
         self.terminalActionIndex = -1
 
+        self.possessingTeamID : int
+
+        self.homePossessionCounter = 0
+
+        self.visitorPossessionCounter = 0
+
 
 
     def addMoment(self, moment):

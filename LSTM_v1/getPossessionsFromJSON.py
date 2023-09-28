@@ -102,11 +102,12 @@ class MomentPreprocessingClass:
 
     def __init__(self, json_path):
         self.json_path = json_path
-        self.events = None
         pattern = r'\d+'
+        data_frame = pd.read_json(json_path)
 
+        self.events = data_frame['events']
         match = re.search(pattern, json_path)
-
+        self.currentTeamPossessionID : int
         if match:
 
             number_part = match.group()
@@ -194,98 +195,110 @@ class MomentPreprocessingClass:
 
 
 
-def getData(json_path):
-
-    data_frame = pd.read_json(json_path)
-
-    events = data_frame['events']
+    def getData(self,json_path):
 
         
-    rowNumber = 1
-
-    possessionCounter = 0
-
-    allPossessions : List[Possession] = []
-    currentPossession: Possession = Possession()
-    currentShotClock = 0
-    previousShotClock = 25
-
-    momentPreprocessingClass = MomentPreprocessingClass(json_path)
-
-    afterTerminalAction = False
-    for eachEvent in events:
-
-        moments = eachEvent["moments"]
-
-        for eachMoment in moments:
-
-            momentObject = Moment(eachMoment)
-            momentObject.fillMomentFromJSON()
-            print(momentObject.whichSideIsOffensive())
-            currentShotClock = momentObject.shot_clock
-            
-            if(momentPreprocessingClass.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
-                        continue
-            else:
-                momentPreprocessingClass.lastGameClockNum = momentObject.game_clock
-
-            isTerminalAction = False
-
-            label = momentPreprocessingClass.annotateMomentUsingNBA_API(momentObject.quarterNum , momentObject.game_clock)
-
-            momentObject.momentLabel = label
-
-            if momentObject.momentLabel != 0:
-                isTerminalAction = True
 
             
-            if afterTerminalAction:
+        rowNumber = 1
+
+        possessionCounter = 0
+
+        
+        allPossessions : List[Possession] = []
+        currentPossession: Possession = Possession()
+        currentShotClock = 0
+        previousShotClock = 25
+
+        momentPreprocessingClass = MomentPreprocessingClass(json_path)
+
+        afterTerminalAction = False
+        for eachEvent in self.events:
+            homeTeamID : int = eachEvent['home']['teamid']
+            visitorTeamID : int = eachEvent['visitor']['teamid']
+
+            moments = eachEvent["moments"]
+
+            for eachMoment in moments:
+
+                momentObject = Moment(eachMoment)
+                momentObject.whichSideIsOffensive()
+                momentObject.whichTeamHasPossession()
+                
+                if momentObject.possessingTeamID == homeTeamID:
+                    currentPossession.homePossessionCounter += 1
+                else:
+                    currentPossession.visitorPossessionCounter += 1
+
+                if currentPossession.homePossessionCounter >= currentPossession.visitorPossessionCounter:
+                    self.currentTeamPossessionID = homeTeamID
+                else:
+                    self.currentTeamPossessionID = visitorTeamID
+
+                momentObject.fillMomentFromJSON(self.currentTeamPossessionID)
+                
+                currentShotClock = momentObject.shot_clock
+                
+                if(momentPreprocessingClass.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
+                            continue
+                else:
+                    momentPreprocessingClass.lastGameClockNum = momentObject.game_clock
+
+                isTerminalAction = False
+
+                label = momentPreprocessingClass.annotateMomentUsingNBA_API(momentObject.quarterNum , momentObject.game_clock)
+
+                momentObject.momentLabel = label
+
+                if momentObject.momentLabel != 0:
+                    isTerminalAction = True
+
+                
+                if afterTerminalAction:
+
+                    if currentShotClock > previousShotClock:
+                        afterTerminalAction = False
+                        
+                        currentPossession.addMoment(momentObject)
+                        allPossessions.append(currentPossession)
+                        currentPossession = Possession()
+                        possessionCounter+=1
+                    currentPossession.addMoment(momentObject)
+                    previousShotClock = currentShotClock
+                        
+                    rowNumber += 1
+                    continue
+
 
                 if currentShotClock > previousShotClock:
-                    afterTerminalAction = False
                     
-                    currentPossession.addMoment(momentObject)
+
                     allPossessions.append(currentPossession)
                     currentPossession = Possession()
                     possessionCounter+=1
-                currentPossession.addMoment(momentObject)
-                previousShotClock = currentShotClock
                     
-                rowNumber += 1
-                continue
 
+                if isTerminalAction:
+                        afterTerminalAction = True
+                        rowNumber += 1
+                        currentPossession.addMoment(momentObject)
+                        currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
+                        continue
 
-            if currentShotClock > previousShotClock:
-                
-
-                allPossessions.append(currentPossession)
-                currentPossession = Possession()
-                possessionCounter+=1
-                
-
-            if isTerminalAction:
-                    afterTerminalAction = True
+                if currentShotClock == previousShotClock:
+                    previousShotClock = currentShotClock
                     rowNumber += 1
-                    currentPossession.addMoment(momentObject)
-                    currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
                     continue
 
-            if currentShotClock == previousShotClock:
-                previousShotClock = currentShotClock
+
+                currentPossession.addMoment(momentObject)
+
+
                 rowNumber += 1
-                continue
+                previousShotClock = currentShotClock
 
+        return allPossessions
 
-            currentPossession.addMoment(momentObject)
-
-
-            rowNumber += 1
-            previousShotClock = currentShotClock
-
-    return allPossessions
-
-if __name__ == "__main__":
-    getData(r"D:\coding\GoogleCSR-Project\LiveResults\0021500497.json")
 
 
 

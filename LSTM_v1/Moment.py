@@ -6,10 +6,10 @@
 
 # Line from CSV : "[{'x': 81.67902, 'y': 18.37563}, {'x': 89.80558, 'y': 31.86329}, {'x': 80.31479, 'y': 31.49464}, {'x': 69.50902, 'y': 2.11084}, {'x': 79.07408, 'y': 26.42447}, {'x': 74.55269, 'y': 13.83294}, {'x': 83.27226, 'y': 44.45603}, {'x': 79.66844, 'y': 33.28058}, {'x': 70.63343, 'y': 0.09149}, {'x': 59.74416, 'y': 33.44953}]","{'x': 89.12535, 'y': 25.66681, 'z': 8.61488}",10.95,706.98,1
 
-
-
-
-        
+from Ball import Ball
+from Player import Player
+import numpy as np
+import sys
 class Moment:
 
     def __init__(self, jsonMomentArray):    
@@ -17,31 +17,39 @@ class Moment:
         self.momentArray = []
         self.momentLabel = 0  # Initialize the label to 0
 
-        self.players = jsonMomentArray[5][1:11]
-        self.ball = jsonMomentArray[5][0][2:5]
+        players = jsonMomentArray[5][1:]  # Hardcoded position for players in json
+        self.players = [Player(player) for player in players]
+
+        ball = jsonMomentArray[5][0]  # Hardcoded position for ball in json
+        self.ball = Ball(ball)
         self.shot_clock = jsonMomentArray[3]
         self.game_clock = jsonMomentArray[2]
 
         self.quarterNum = jsonMomentArray[0]
+
+        self.offensiveSide : str
+        self.possessingTeamID : int
+        self.leftHoop = np.array([5,25])
+        self.rightHoop = np.array([89,25])
         print()
 
         
 
 
-    def fillMomentFromJSON(self):
+    def fillMomentFromJSON(self, currentTeamPossessionID  : int):
 
         
         # storing all 25 values into the moment Array (no label yet)
 
         for eachPlayer in self.players:
-            self.momentArray.append(float(eachPlayer[2]))
-            self.momentArray.append(float(eachPlayer[3]))
+            self.momentArray.append(float(eachPlayer.x))
+            self.momentArray.append(float(eachPlayer.y))
 
         # add ball location
         
-        self.momentArray.append(float(self.ball[0]))
-        self.momentArray.append(float(self.ball[1]))
-        self.momentArray.append(float(self.ball[2]))
+        self.momentArray.append(float(self.ball.x))
+        self.momentArray.append(float(self.ball.y))
+        self.momentArray.append(float(self.ball.radius))
 
         # add shot and game clock
 
@@ -56,9 +64,6 @@ class Moment:
         else:
             self.momentArray.append(float(self.game_clock))
 
-
-        # add the label
-
     def whichSideIsOffensive(self) -> str:
 
         # halfcourt is at x = 47.0
@@ -68,15 +73,34 @@ class Moment:
         counter = 0
 
         for eachPlayer in self.players:
-            x = eachPlayer[2]
+            x = eachPlayer.x
 
             if x <= 47.0:
                 counter +=1
 
         if counter >= 5:
-            return "Left"
+            self.offensiveSide = "Left"
         else:
-            return "Right"
+            self.offensiveSide = "Right"
+
+    def whichTeamHasPossession(self):
+        shortestDistance = sys.maxsize
+
+        ball_x = self.ball.x
+        ball_y = self.ball.y
+
+        ball_point = np.array([ball_x,ball_y])
+
+        for eachPlayer in self.players:
+            player_point = np.array([eachPlayer.x , eachPlayer.y])
+
+            currDistance = np.linalg.norm(player_point-ball_point)
+
+            if currDistance < shortestDistance:
+                shortestDistance = currDistance
+                self.possessingTeam = eachPlayer.team
+
+        self.possessingTeam = self.possessingTeam.id
     
 
 

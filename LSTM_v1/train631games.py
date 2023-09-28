@@ -79,7 +79,7 @@ from getPossessionsFromJSON import getData
 from typing import List
 from helperFunctions import createTemporalWindows, processDataForLSTM
 import numpy as np
-
+from getPossessionsFromJSON import MomentPreprocessingClass
 
 def getInputOutputData(datasetDirectoryVariable):
 
@@ -87,8 +87,9 @@ def getInputOutputData(datasetDirectoryVariable):
     for eachJSON in datasetDirectoryVariable:
         json_path = os.path.join(destination_folder, eachJSON)
         print(json_path)
-
-        possessions : List[Possession] = getData(json_path)
+        
+        momentPreprocessing : MomentPreprocessingClass = MomentPreprocessingClass(json_path)
+        possessions : List[Possession] = momentPreprocessing.getData(json_path)
         createTemporalWindows(possessions)
         allPossessions.extend(possessions)
 
