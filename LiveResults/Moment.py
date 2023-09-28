@@ -1,6 +1,7 @@
 from Ball import Ball
 from Player import Player
-
+import sys
+import numpy as np
 class Moment:
     """A class for keeping info about the jsonMomentArrays"""
     def __init__(self, jsonMomentArray):
@@ -13,6 +14,10 @@ class Moment:
         players = jsonMomentArray[5][1:]  # Hardcoded position for players in json
         self.players = [Player(player) for player in players]
         self.momentArray = []
+        self.offensiveSide : str
+        self.possessingTeam : int
+        self.leftHoop = np.array([5,25])
+        self.rightHoop = np.array([89,25])
 
     def fillMomentFromJSON(self):
 
@@ -57,6 +62,25 @@ class Moment:
                 counter +=1
 
         if counter >= 5:
-            return "Left"
+            self.offensiveSide = "Left"
         else:
-            return "Right"
+            self.offensiveSide = "Right"
+
+    def whichTeamHasPossession(self):
+        shortestDistance = sys.maxsize
+
+        ball_x = self.ball.x
+        ball_y = self.ball.y
+
+        ball_point = np.array([ball_x,ball_y])
+
+        for eachPlayer in self.players:
+            player_point = np.array([eachPlayer.x , eachPlayer.y])
+
+            currDistance = np.linalg.norm(player_point-ball_point)
+
+            if currDistance < shortestDistance:
+                shortestDistance = currDistance
+                self.possessingTeam = eachPlayer.team
+
+        self.possessingTeam = self.possessingTeam.id

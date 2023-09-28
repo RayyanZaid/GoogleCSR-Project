@@ -20,13 +20,12 @@ mapping = {
 }
 
 # Goal : Read through each moment 
-def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMoment : Moment) -> List[List[float]]:
+def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMomentArray : List[float]) -> List[List[float]]:
 
-    currentMomentArray = 0
     if len(listOfMoments) >= 128:
         listOfMoments.pop(0)
     
-    listOfMoments.append(currentMoment)
+    listOfMoments.append(currentMomentArray)
     np_list = np.array(listOfMoments)
     print(np_list.shape)
     return listOfMoments
@@ -55,6 +54,7 @@ class Event:
     """A class for handling and showing events"""
 
     def __init__(self, event):
+        self.event = event
         moments = event['moments']
         self.moments = [Moment(moment) for moment in moments]
         self.listOfMoments : List[List[float]] = []
@@ -74,13 +74,32 @@ class Event:
         self.prev_ball_circle = None
         self.prev_bar_plot = None
 
+        self.homeTeamID = event['home']['teamid']
+        self.awayTeamID = event['visitor']['teamid']
+
+        self.homeTeamPossessionCounter = 0
+        self.awayTeamPossessionCounter = 0
+
     def update_both(self, i, player_circles, ball_circle, annotations, clock_info, bar_plot):
         momentObject: Moment = self.moments[i]
         
         if i == self.prev_i:
             return self.prev_player_circles, self.prev_ball_circle, self.prev_bar_plot
+        
+        momentObject.whichTeamHasPossession()
+
+        if momentObject.possessingTeam == self.homeTeamID:
+            self.homeTeamPossessionCounter += 1
+        else:
+            self.awayTeamPossessionCounter +=1
+        
+        if self.homeTeamPossessionCounter >= self.awayTeamPossessionCounter:
+            print(self.event["home"]["name"])
+        else:
+            print(self.event["visitor"]["name"])
+        momentObject.whichSideIsOffensive()
         momentObject.fillMomentFromJSON()
-        print(momentObject.whichSideIsOffensive())
+        
 
         momentArray: List[float] = momentObject.momentArray
 
