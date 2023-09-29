@@ -1,9 +1,9 @@
 from typing import List
 import numpy as np
 
-from MomentPreprocessing.MomentPreprocessingMain import MomentPreprocessingClass
+
 from Possession import Possession
-from getPossessionsFromJSON import getData
+
 from Moment import Moment
 from TemporalWindow import TemporalWindow
 
@@ -119,5 +119,4 @@ from keras.models import load_model
 
 def predict(testData):
     loaded_model = load_model("lstm_v1.h5")
-    predictions = loaded_model.predict(testData)
-    print()
+    predictions = loaded_model.predict(testData)    

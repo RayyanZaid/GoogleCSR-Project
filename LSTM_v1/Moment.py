@@ -27,11 +27,11 @@ class Moment:
 
         self.quarterNum = jsonMomentArray[0]
 
-        self.offensiveSide : str
-        self.possessingTeamID : int
+        self.offensiveSide : str =  None
+        self.possessingTeamID : int = None
         self.leftHoop = np.array([5,25])
         self.rightHoop = np.array([89,25])
-        print()
+
 
         
 
@@ -90,7 +90,7 @@ class Moment:
         ball_y = self.ball.y
 
         ball_point = np.array([ball_x,ball_y])
-
+        self.possessingTeamID = None
         for eachPlayer in self.players:
             player_point = np.array([eachPlayer.x , eachPlayer.y])
 
@@ -98,9 +98,9 @@ class Moment:
 
             if currDistance < shortestDistance:
                 shortestDistance = currDistance
-                self.possessingTeam = eachPlayer.team
+                self.possessingTeamID = eachPlayer.team.id
 
-        self.possessingTeam = self.possessingTeam.id
+
     
 
 

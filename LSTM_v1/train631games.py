@@ -75,7 +75,7 @@ def extractFilesToDestinationFolder(inputStartIndex, inputEndIndex):
 
 
 from Possession import Possession
-from getPossessionsFromJSON import getData
+
 from typing import List
 from helperFunctions import createTemporalWindows, processDataForLSTM
 import numpy as np

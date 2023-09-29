@@ -225,6 +225,9 @@ class MomentPreprocessingClass:
                 momentObject.whichSideIsOffensive()
                 momentObject.whichTeamHasPossession()
                 
+                if momentObject.possessingTeamID == None:
+                    continue
+                
                 if momentObject.possessingTeamID == homeTeamID:
                     currentPossession.homePossessionCounter += 1
                 else:
