@@ -56,7 +56,7 @@ import pandas as pd
 
 import ast
 import pandas as pd
-from MomentPreprocessing.Event import Event
+
 import csv
 import re
 # Goal is to store each moment data in a CSV file (annotated)

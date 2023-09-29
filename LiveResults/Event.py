@@ -80,6 +80,8 @@ class Event:
         self.homeTeamPossessionCounter = 0
         self.awayTeamPossessionCounter = 0
 
+        self.currentPossessionTeamID : int
+
     def update_both(self, i, player_circles, ball_circle, annotations, clock_info, bar_plot):
         momentObject: Moment = self.moments[i]
         
@@ -88,17 +90,20 @@ class Event:
         
         momentObject.whichTeamHasPossession()
 
-        if momentObject.possessingTeam == self.homeTeamID:
+        if momentObject.possessingTeamID == self.homeTeamID:
             self.homeTeamPossessionCounter += 1
         else:
             self.awayTeamPossessionCounter +=1
         
         if self.homeTeamPossessionCounter >= self.awayTeamPossessionCounter:
             print(self.event["home"]["name"])
+            self.currentPossessionTeamID = self.homeTeamID
         else:
             print(self.event["visitor"]["name"])
+            self.currentPossessionTeamID = self.awayTeamID
+
         momentObject.whichSideIsOffensive()
-        momentObject.fillMomentFromJSON()
+        momentObject.fillMomentFromJSON(self.currentPossessionTeamID)
         
 
         momentArray: List[float] = momentObject.momentArray
