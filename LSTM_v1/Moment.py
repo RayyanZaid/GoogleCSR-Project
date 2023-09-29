@@ -10,6 +10,11 @@ from Ball import Ball
 from Player import Player
 import numpy as np
 import sys
+from typing import List
+
+from rectangularToPolar import RectangularToPolar
+
+
 class Moment:
 
     def __init__(self, jsonMomentArray):    
@@ -40,15 +45,43 @@ class Moment:
 
         
         # storing all 25 values into the moment Array (no label yet)
+        
+        defensiveTeamArray : List[float] = []
 
+        isLeft = False
         for eachPlayer in self.players:
-            self.momentArray.append(float(eachPlayer.x))
-            self.momentArray.append(float(eachPlayer.y))
+            polarObject : RectangularToPolar
+
+            if self.offensiveSide == "Left":
+                polarObject = RectangularToPolar(float(eachPlayer.x), float(eachPlayer.y) , self.leftHoop[0] , self.leftHoop[1])
+                isLeft = True
+            else:
+                polarObject = RectangularToPolar(float(eachPlayer.x), float(eachPlayer.y) , self.rightHoop[0] , self.rightHoop[1])
+                isLeft = False
+
+            r , direction = polarObject.returnPolarCoordinates()
+
+            if eachPlayer.team.id == currentTeamPossessionID:
+                self.momentArray.append(r)
+                self.momentArray.append(direction)
+            else:
+                defensiveTeamArray.append(r)
+                defensiveTeamArray.append(direction)
+
+        self.momentArray = self.momentArray + defensiveTeamArray
 
         # add ball location
         
-        self.momentArray.append(float(self.ball.x))
-        self.momentArray.append(float(self.ball.y))
+    
+        if isLeft:
+            polarObject = RectangularToPolar(float(self.ball.x), float(self.ball.y) , self.leftHoop[0] , self.leftHoop[1])
+            r , direction = polarObject.returnPolarCoordinates()
+        else:
+            polarObject = RectangularToPolar(float(self.ball.x), float(self.ball.y) , self.leftHoop[0] , self.leftHoop[1])
+            r , direction = polarObject.returnPolarCoordinates()
+        
+        self.momentArray.append(r)
+        self.momentArray.append(direction)
         self.momentArray.append(float(self.ball.radius))
 
         # add shot and game clock
@@ -101,15 +134,3 @@ class Moment:
                 self.possessingTeamID = eachPlayer.team.id
 
 
-    
-
-
-# Example usage
-
-# if __name__ == "__main__":
-#     csv_line = "[{'x': 81.67902, 'y': 18.37563}, {'x': 89.80558, 'y': 31.86329}, {'x': 80.31479, 'y': 31.49464}, {'x': 69.50902, 'y': 2.11084}, {'x': 79.07408, 'y': 26.42447}, {'x': 74.55269, 'y': 13.83294}, {'x': 83.27226, 'y': 44.45603}, {'x': 79.66844, 'y': 33.28058}, {'x': 70.63343, 'y': 0.09149}, {'x': 59.74416, 'y': 33.44953}]","{'x': 89.12535, 'y': 25.66681, 'z': 8.61488}",10.95,706.98,1
-#     m1 = Moment(csv_line)
-#     m1.fillMomentInfoFromCSVLine()
-
-#     print(m1.momentArray)
-#     print(m1.momentLabel)
