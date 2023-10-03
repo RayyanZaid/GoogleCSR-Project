@@ -9,7 +9,7 @@ import numpy as np
 from typing import List
 
 from keras.models import load_model
-model1 = load_model(r"D:\coding\GoogleCSR-Project\model1")
+model1 = load_model(r"model1")
 
 mapping = {
     0.0: "null",
