@@ -262,11 +262,20 @@ class MomentPreprocessingClass:
                     if currentShotClock > previousShotClock:
                         afterTerminalAction = False
                         
-                        currentPossession.addMoment(momentObject)
+                        if len(momentObject.momentArray) != 25:
+                            print("MOMENT IS NOT LENGTH 25")
+                        else:
+                            currentPossession.addMoment(momentObject)
                         allPossessions.append(currentPossession)
                         currentPossession = Possession()
                         possessionCounter+=1
-                    currentPossession.addMoment(momentObject)
+                    
+
+                    if len(momentObject.momentArray) != 25:
+                        print("MOMENT IS NOT LENGTH 25")
+                    else:
+                        currentPossession.addMoment(momentObject)
+                        
                     previousShotClock = currentShotClock
                         
                     rowNumber += 1
@@ -284,7 +293,10 @@ class MomentPreprocessingClass:
                 if isTerminalAction:
                         afterTerminalAction = True
                         rowNumber += 1
-                        currentPossession.addMoment(momentObject)
+                        if len(momentObject.momentArray) != 25:
+                            print("MOMENT IS NOT LENGTH 25")
+                        else:
+                            currentPossession.addMoment(momentObject)
                         currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
                         continue
 
@@ -293,8 +305,11 @@ class MomentPreprocessingClass:
                     rowNumber += 1
                     continue
 
-
-                currentPossession.addMoment(momentObject)
+                
+                if len(momentObject.momentArray) != 25:
+                    print("MOMENT IS NOT LENGTH 25")
+                else:
+                    currentPossession.addMoment(momentObject)
 
 
                 rowNumber += 1
