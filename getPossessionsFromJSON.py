@@ -111,7 +111,7 @@ class MomentPreprocessingClass:
         if match:
 
             number_part = match.group()
-            print("Extracted number part:", number_part)
+            # print("Extracted number part:", number_part)
         else:
             print("No number found in the text.")
 
@@ -128,14 +128,14 @@ class MomentPreprocessingClass:
             if eventNum == 1 or eventNum == 2:
 
                 eventNum = 1 # FG attempt
-                print("Field Goal Attempt")
+                # print("Field Goal Attempt")
                 timeStamp = add_seconds_to_time(timeStamp, 3)
 
 
             elif eventNum == 5:
 
                 eventNum = 4 # turnover
-                print("Turnover")
+                # print("Turnover")
             
             elif eventNum == 6:
 

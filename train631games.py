@@ -3,8 +3,8 @@ import py7zr
 
 
 
-folder_path_with_7z = r"D:\coding\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
-destination_folder = r"D:\coding\GoogleCSR-Project\Dataset"
+folder_path_with_7z = r"C:\Users\rayya\Desktop\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
+destination_folder = r"Current_Training_JSON"
 
 
 def delete_files_in_folder(folder_path):
@@ -172,7 +172,7 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
 
     from keras.models import load_model
 
-    model_directory = r"D:\coding\GoogleCSR-Project\model1"
+    model_directory = r"model1"
     model1 : Sequential
 
     if not os.path.exists(model_directory):
@@ -183,7 +183,7 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
 
     #  Cell 6 -- Train
 
-    cp = ModelCheckpoint(r"D:\coding\GoogleCSR-Project\model1", save_best_only=True) # saves model with lowest validation loss
+    cp = ModelCheckpoint(r"model1", save_best_only=True) # saves model with lowest validation loss
     model1.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.01), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
     model1.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=10, callbacks=[cp], batch_size=8)
 

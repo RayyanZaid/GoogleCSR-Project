@@ -22,8 +22,13 @@ mapping = {
 # Goal : Read through each moment 
 def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMomentArray : List[float]) -> List[List[float]]:
 
+
+    if len(currentMomentArray) != 25:
+        return listOfMoments
+
     if len(listOfMoments) >= 128:
         listOfMoments.pop(0)
+    
     
     listOfMoments.append(currentMomentArray)
     np_list = np.array(listOfMoments)
@@ -119,7 +124,7 @@ class Event:
 
             if moment.game_clock is not None and moment.shot_clock is not None:
                 clock_test = 'Quarter {:d}\n {:02d}:{:02d}\n {:03.1f}'.format(
-                            moment.quarter,
+                            moment.quarterNum,
                             int(moment.game_clock) % 3600 // 60,
                             int(moment.game_clock) % 60,
                             moment.shot_clock)
@@ -151,7 +156,7 @@ class Event:
         fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [10, 2]})
 
         # Plot the basketball court
-        court = plt.imread(r"D:\coding\GoogleCSR-Project\LiveResults\court.png")
+        court = plt.imread(r"court.png")
         ax1.imshow(court, zorder=0, extent=[Constant.X_MIN, Constant.X_MAX - Constant.DIFF,
                                             Constant.Y_MAX, Constant.Y_MIN])
         ax1.axis('off')
