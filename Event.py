@@ -156,7 +156,7 @@ class Event:
         fig, (ax1, ax2) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [10, 2]})
 
         # Plot the basketball court
-        court = plt.imread(r"D:\coding\GoogleCSR-Project\court.png")
+        court = plt.imread(r"court.png")
         ax1.imshow(court, zorder=0, extent=[Constant.X_MIN, Constant.X_MAX - Constant.DIFF,
                                             Constant.Y_MAX, Constant.Y_MIN])
         ax1.axis('off')

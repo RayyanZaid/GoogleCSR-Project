@@ -64,6 +64,3 @@ class RectangularToPolar:
 
         return (r,direction)
     
-obj = RectangularToPolar(10,20,89,25)
-
-print(obj.returnPolarCoordinates())
