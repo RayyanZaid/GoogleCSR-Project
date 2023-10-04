@@ -8,7 +8,7 @@ from Moment import Moment
 from TemporalWindow import TemporalWindow
 
 
-T = 128 
+from globals import WINDOW_SIZE
 
 def createTemporalWindows(possessions: List[Possession]):
     for eachPossession in possessions:
@@ -16,9 +16,9 @@ def createTemporalWindows(possessions: List[Possession]):
         temporalWindows = []
 
         if terminalActionIndex == -1:
-            if len(eachPossession.moments) >= T:
+            if len(eachPossession.moments) >= WINDOW_SIZE:
                 temporalWindow = TemporalWindow()
-                temporalWindow.moments = eachPossession.moments[-T:]
+                temporalWindow.moments = eachPossession.moments[-WINDOW_SIZE:]
                 temporalWindow.label = 0
 
 
@@ -29,18 +29,18 @@ def createTemporalWindows(possessions: List[Possession]):
                 temporalWindow.label = 0
                 temporalWindows.append(temporalWindow)
         else:
-            numTemporalWindows = int((terminalActionIndex + 1) / T)
-            remainder = (terminalActionIndex + 1) % T
+            numTemporalWindows = int((terminalActionIndex + 1) / WINDOW_SIZE)
+            remainder = (terminalActionIndex + 1) % WINDOW_SIZE
             currentIndex = terminalActionIndex
-            temporalWindowStartIndex = currentIndex - T
+            temporalWindowStartIndex = currentIndex - WINDOW_SIZE
             temporalWindowEndIndex = currentIndex
             for i in range(numTemporalWindows):
-                temporalWindowStartIndex = currentIndex - T
+                temporalWindowStartIndex = currentIndex - WINDOW_SIZE
                 temporalWindowEndIndex = currentIndex
                 temporalWindow = TemporalWindow()
                 temporalWindow.moments = eachPossession.moments[temporalWindowStartIndex + 1:temporalWindowEndIndex + 1]
                 temporalWindow.label = eachPossession.moments[temporalWindowEndIndex].momentLabel
-                currentIndex = currentIndex - T
+                currentIndex = currentIndex - WINDOW_SIZE
                 temporalWindows.insert(0, temporalWindow)
 
             temporalWindow = TemporalWindow()
@@ -80,7 +80,7 @@ def processDataForLSTM(possessions : List[Possession]):
 
                     momentDataOfTemporalWindow.append(eachMoment.momentArray)
 
-            if(len(momentDataOfTemporalWindow) == 128):
+            if(len(momentDataOfTemporalWindow) == WINDOW_SIZE):
             
                 inputTemporalWindowMatrix.append(momentDataOfTemporalWindow)
                 outputTemporalWindowLabels.append(labelDataOfTemporalWindow)
@@ -90,33 +90,3 @@ def processDataForLSTM(possessions : List[Possession]):
 
     return inputTemporalWindowMatrix, outputTemporalWindowLabels
 
-
-
-from keras.models import Sequential
-from keras.layers import LSTM, Dense, Masking
-
-# def loadAndTrainLSTM(inputData, labelData):
-
-#     model = Sequential()
-
-#     # Add a Masking layer to handle the masking automatically
-#     model.add(Masking(mask_value=-1, input_shape=(128, 25)))  # Replace -1 with the appropriate mask value
-
-#     # Add the LSTM layer with mask support
-#     model.add(LSTM(units=64, activation='tanh', return_sequences=False, input_shape=(128, 25), mask_zero=True))  
-#     # Set mask_zero=True to handle masking
-
-#     # Add the output layer with sigmoid activation for binary classification
-#     model.add(Dense(units=1, activation='sigmoid'))
-
-#     # Compile the model
-#     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-#     model.fit(inputData, labelData, epochs=10, batch_size=32)  
-#     model.save("lstm_v1.h5")
-
-
-from keras.models import load_model
-
-def predict(testData):
-    loaded_model = load_model("lstm_v1.h5")
-    predictions = loaded_model.predict(testData)    

@@ -1,7 +1,7 @@
 import os
 import py7zr
 
-
+from globals import WINDOW_SIZE
 
 folder_path_with_7z = r"C:\Users\rayya\Desktop\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
 destination_folder = r"Current_Training_JSON"
@@ -108,7 +108,7 @@ from keras.optimizers import Adam
 def createModel() -> Sequential:
 
     model1 = Sequential()
-    model1.add(InputLayer((128, 25)))
+    model1.add(InputLayer((WINDOW_SIZE, 25)))
     model1.add(LSTM(64))
     model1.add(Dense(8, activation='relu'))
     model1.add(Dense(8, activation='sigmoid')) 
@@ -120,7 +120,91 @@ def createModel() -> Sequential:
     return model1
 
 
+def plotLoss(history):
+    # Plot training and validation loss
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Loss Plot Over Epochs')
+    plt.legend()
+    plt.savefig('Graphs/loss_plot.png')
+    plt.show()
 
+
+def plotAccuracy(history):
+    # Plot training and validation accuracy
+    plt.plot(history.history['categorical_accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_categorical_accuracy'], label='Validation Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy Plot Over Epochs')
+    plt.legend()
+    plt.savefig('Graphs/accuracy_plot.png')
+    plt.show()
+
+def plotLearningCurve(history):
+    train_loss = []  # To store training loss
+    val_loss = []    # To store validation loss
+    train_acc = []   # To store training accuracy
+    val_acc = []     # To store validation accuracy
+
+    train_loss.extend(history.history['loss'])
+    val_loss.extend(history.history['val_loss'])
+    train_acc.extend(history.history['categorical_accuracy'])
+    val_acc.extend(history.history['val_categorical_accuracy'])
+
+    num_examples_per_epoch = np.arange(1, len(train_loss) + 1) * len(X_train)
+
+    # Plot learning curves for loss
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(num_examples_per_epoch, train_loss, label='Training Loss')
+    plt.plot(num_examples_per_epoch, val_loss, label='Validation Loss')
+    plt.xlabel('Number of Training Examples')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.title('Learning Curve - Loss')
+
+    # Plot learning curves for accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(num_examples_per_epoch, train_acc, label='Training Accuracy')
+    plt.plot(num_examples_per_epoch, val_acc, label='Validation Accuracy')
+    plt.xlabel('Number of Training Examples')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.title('Learning Curve - Accuracy')
+
+    plt.tight_layout()
+    plt.savefig('Graphs/learning_curves.png')
+    plt.show()
+
+def plotTimeSeries(history, X_test, y_test, model):
+ 
+
+    y_pred = model.predict(X_test)  # Adjust this based on your specific time series forecasting setup
+    actual_time_series = y_test  # Assuming y_test contains your actual time series data
+    predicted_time_series = y_pred  # Assuming y_pred contains your predicted time series data
+
+    actual_time_series = np.array(actual_time_series)
+    predicted_time_series = np.array(predicted_time_series)
+
+    actual_time_series = np.array(actual_time_series)
+    predicted_time_series = np.array(predicted_time_series)
+
+    # Extract the selected index with the highest probability for each time step
+    selected_indices = [np.argmax(probabilities) for probabilities in predicted_time_series]
+
+    # Plot actual vs. predicted time series
+    plt.figure(figsize=(10, 6))
+    plt.plot(actual_time_series, label='Actual Time Series', color='blue', marker='o')
+    plt.plot(selected_indices, label='Predicted Time Series', color='red', marker='x', linestyle='--')
+    plt.xlabel('Time Steps')
+    plt.ylabel('Selected Index (0-4)')
+    plt.legend()
+    plt.title('Actual vs. Predicted Time Series')
+    plt.savefig('Graphs/time_series.png')
+    plt.show()
 
 #  Cell 1 -- Get Start & End Games
 
@@ -149,7 +233,7 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
 
     inputMatrix , outputVector = getInputOutputData(datasetDirectoryVariable)
 
-    inputMatrix = np.array(inputMatrix)   # SHAPE: number of windows 1500, 128, 25
+    inputMatrix = np.array(inputMatrix)   # SHAPE: number of windows 1500, WINDOW_SIZE, 25
     outputVector = np.array(outputVector) # SHAPE: number of windows 1500, 1 
 
     print(inputMatrix.shape)
@@ -182,13 +266,21 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
 
 
     #  Cell 6 -- Train
+    import matplotlib.pyplot as plt
 
     cp = ModelCheckpoint(r"model1", save_best_only=True) # saves model with lowest validation loss
-    model1.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.01), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
-    model1.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=10, callbacks=[cp], batch_size=8)
+    model1.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.001), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
+    history = model1.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=20, callbacks=[cp], batch_size=8)
+
+    
 
     # Cell 7 -- Delete
 
+    plotAccuracy(history)
+    plotLoss(history)
+    plotLearningCurve(history)
+    plotTimeSeries(history,X_test,y_test,model1)
+    
     delete_files_in_folder(destination_folder) # end by deleting the JSON files from the dataset folder
 
     if isDone:

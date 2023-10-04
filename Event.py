@@ -8,6 +8,8 @@ from matplotlib.patches import Circle, Rectangle, Arc
 import numpy as np
 from typing import List
 
+from globals import WINDOW_SIZE
+
 from keras.models import load_model
 model1 = load_model(r"model1")
 
@@ -26,7 +28,7 @@ def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMomentA
     if len(currentMomentArray) != 25:
         return listOfMoments
 
-    if len(listOfMoments) >= 128:
+    if len(listOfMoments) >= WINDOW_SIZE:
         listOfMoments.pop(0)
     
     
@@ -36,12 +38,12 @@ def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMomentA
     return listOfMoments
 
 
-# only works if length of list of moments is == 128
+# only works if length of list of moments is == WINDOW_SIZE
 def predict(listOfMoments: List[List[float]]):
     predictions = []
 
     # Check if the input data has the correct shape
-    if len(listOfMoments) == 128:
+    if len(listOfMoments) == WINDOW_SIZE:
         # Convert the list of moments to a numpy array and add a batch dimension
         
 
