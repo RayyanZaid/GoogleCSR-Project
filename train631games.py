@@ -1,7 +1,7 @@
 import os
 import py7zr
 
-from globals import WINDOW_SIZE
+from globals import WINDOW_SIZE, MOMENT_SIZE
 
 folder_path_with_7z = r"C:\Users\rayya\Desktop\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
 destination_folder = r"Current_Training_JSON"
@@ -108,7 +108,7 @@ from keras.optimizers import Adam
 def createModel() -> Sequential:
 
     model1 = Sequential()
-    model1.add(InputLayer((WINDOW_SIZE, 25)))
+    model1.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
     model1.add(LSTM(64))
     model1.add(Dense(8, activation='relu'))
     model1.add(Dense(8, activation='sigmoid')) 
@@ -233,7 +233,7 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
 
     inputMatrix , outputVector = getInputOutputData(datasetDirectoryVariable)
 
-    inputMatrix = np.array(inputMatrix)   # SHAPE: number of windows 1500, WINDOW_SIZE, 25
+    inputMatrix = np.array(inputMatrix)   # SHAPE: number of windows 1500, WINDOW_SIZE, MOMENT_SIZE
     outputVector = np.array(outputVector) # SHAPE: number of windows 1500, 1 
 
     print(inputMatrix.shape)

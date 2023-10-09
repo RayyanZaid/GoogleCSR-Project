@@ -1,1 +1,2 @@
 WINDOW_SIZE : int = 75
+MOMENT_SIZE : int = 25
