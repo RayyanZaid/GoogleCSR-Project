@@ -8,7 +8,7 @@ from matplotlib.patches import Circle, Rectangle, Arc
 import numpy as np
 from typing import List
 
-from globals import WINDOW_SIZE
+from globals import WINDOW_SIZE, MOMENT_SIZE
 
 from keras.models import load_model
 model1 = load_model(r"model1")
@@ -25,10 +25,10 @@ mapping = {
 def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMomentArray : List[float]) -> List[List[float]]:
 
 
-    if len(currentMomentArray) != 25:
+    if len(currentMomentArray) != MOMENT_SIZE:
         return listOfMoments
 
-    if len(listOfMoments) >= WINDOW_SIZE:
+    while len(listOfMoments) >= WINDOW_SIZE:
         listOfMoments.pop(0)
     
     

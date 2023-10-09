@@ -1,12 +1,12 @@
 import os
 import py7zr
 
-from globals import WINDOW_SIZE, MOMENT_SIZE
+from globals import WINDOW_SIZE, MOMENT_SIZE, print_error_and_continue
 
 folder_path_with_7z = r"C:\Users\rayya\Desktop\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
 destination_folder = r"Current_Training_JSON"
 
-
+@print_error_and_continue
 def delete_files_in_folder(folder_path):
     try:
         # List all files in the folder
@@ -24,7 +24,7 @@ def delete_files_in_folder(folder_path):
         print(f"An error occurred: {str(e)}")
 
 
-
+@print_error_and_continue
 def extractFilesToDestinationFolder(inputStartIndex, inputEndIndex):
 
     
@@ -81,6 +81,7 @@ from helperFunctions import createTemporalWindows, processDataForLSTM
 import numpy as np
 from getPossessionsFromJSON import MomentPreprocessingClass
 
+@print_error_and_continue
 def getInputOutputData(datasetDirectoryVariable):
 
     allPossessions : List[Possession] = []
@@ -105,21 +106,22 @@ from keras.losses import CategoricalCrossentropy # For loss function
 from keras.metrics import CategoricalAccuracy
 from keras.optimizers import Adam
 
+@print_error_and_continue
 def createModel() -> Sequential:
 
-    model1 = Sequential()
-    model1.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
-    model1.add(LSTM(64))
-    model1.add(Dense(8, activation='relu'))
-    model1.add(Dense(8, activation='sigmoid')) 
-    model1.add(Dropout(0.5))  # prevents overfitting
-    model1.add(Dense(16, activation='relu'))  
-    model1.add(Dense(5, activation='softmax'))
-    model1.summary()
+    model2 = Sequential()
+    model2.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
+    model2.add(LSTM(64))
+    model2.add(Dense(8, activation='relu'))
+    model2.add(Dense(8, activation='sigmoid')) 
+    model2.add(Dropout(0.5))  # prevents overfitting
+    model2.add(Dense(16, activation='relu'))  
+    model2.add(Dense(5, activation='softmax'))
+    model2.summary()
 
-    return model1
+    return model2
 
-
+@print_error_and_continue
 def plotLoss(history):
     # Plot training and validation loss
     plt.plot(history.history['loss'], label='Training Loss')
@@ -131,7 +133,7 @@ def plotLoss(history):
     plt.savefig('Graphs/loss_plot.png')
     plt.show()
 
-
+@print_error_and_continue
 def plotAccuracy(history):
     # Plot training and validation accuracy
     plt.plot(history.history['categorical_accuracy'], label='Training Accuracy')
@@ -143,6 +145,7 @@ def plotAccuracy(history):
     plt.savefig('Graphs/accuracy_plot.png')
     plt.show()
 
+@print_error_and_continue
 def plotLearningCurve(history):
     train_loss = []  # To store training loss
     val_loss = []    # To store validation loss
@@ -179,6 +182,7 @@ def plotLearningCurve(history):
     plt.savefig('Graphs/learning_curves.png')
     plt.show()
 
+@print_error_and_continue
 def plotTimeSeries(history, X_test, y_test, model):
  
 
@@ -256,21 +260,21 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
 
     from keras.models import load_model
 
-    model_directory = r"model1"
-    model1 : Sequential
+    model_directory = r"model2"
+    model2 : Sequential
 
     if not os.path.exists(model_directory):
-        model1 = createModel()
+        model2 = createModel()
     else:
-        model1 = load_model(model_directory)
+        model2 = load_model(model_directory)
 
 
     #  Cell 6 -- Train
     import matplotlib.pyplot as plt
 
-    cp = ModelCheckpoint(r"model1", save_best_only=True) # saves model with lowest validation loss
-    model1.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.001), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
-    history = model1.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=20, callbacks=[cp], batch_size=8)
+    cp = ModelCheckpoint(f"{model_directory}", save_best_only=True) # saves model with lowest validation loss
+    model2.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.001), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
+    history = model2.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=20, callbacks=[cp], batch_size=8)
 
     
 
@@ -279,7 +283,7 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
     plotAccuracy(history)
     plotLoss(history)
     plotLearningCurve(history)
-    plotTimeSeries(history,X_test,y_test,model1)
+    plotTimeSeries(history,X_test,y_test,model2)
     
     delete_files_in_folder(destination_folder) # end by deleting the JSON files from the dataset folder
 

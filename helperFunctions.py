@@ -8,7 +8,7 @@ from Moment import Moment
 from TemporalWindow import TemporalWindow
 
 
-from globals import WINDOW_SIZE
+from globals import WINDOW_SIZE, MOMENT_SIZE
 
 def createTemporalWindows(possessions: List[Possession]):
     for eachPossession in possessions:
@@ -76,7 +76,7 @@ def processDataForLSTM(possessions : List[Possession]):
 
             for eachMoment in momentObjectsOfTemporalWindow:
 
-                if(len(eachMoment.momentArray) == 25):
+                if(len(eachMoment.momentArray) == MOMENT_SIZE):
 
                     momentDataOfTemporalWindow.append(eachMoment.momentArray)
 

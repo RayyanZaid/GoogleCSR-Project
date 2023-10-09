@@ -57,15 +57,16 @@ import pandas as pd
 import ast
 import pandas as pd
 
-import csv
+
 import re
 # Goal is to store each moment data in a CSV file (annotated)
 
 # ex: playerLocations , ballLocation , shotClock --> annotation
 from enum import Enum
 from nba_api.stats.endpoints import playbyplay
+from globals import MOMENT_SIZE, print_error_and_continue
 
-
+@print_error_and_continue
 def add_seconds_to_time(time_str, seconds_to_add):
     # Split the time string into minutes and seconds
     minutes_str, seconds_str = time_str.split(':')
@@ -167,7 +168,7 @@ class MomentPreprocessingClass:
         self.lastAnnotationNum = "0"
         self.lastGameClockNum = "720.00"
 
-
+    @print_error_and_continue
     def annotateMomentUsingNBA_API(self, quarterOfMoment, secondsUntilEndOfQuarterOfMoment):
         # Truncate the decimal points in secondsUntilEndOfQuarterOfMoment
         secondsUntilEndOfQuarterOfMoment = int(secondsUntilEndOfQuarterOfMoment)
@@ -194,7 +195,7 @@ class MomentPreprocessingClass:
             return 0
 
 
-
+    @print_error_and_continue
     def getData(self,json_path):
 
         
@@ -262,8 +263,8 @@ class MomentPreprocessingClass:
                     if currentShotClock > previousShotClock:
                         afterTerminalAction = False
                         
-                        if len(momentObject.momentArray) != 25:
-                            print("MOMENT IS NOT LENGTH 25")
+                        if len(momentObject.momentArray) != MOMENT_SIZE:
+                            print("MOMENT IS NOT LENGTH MOMENT_SIZE")
                         else:
                             currentPossession.addMoment(momentObject)
                         allPossessions.append(currentPossession)
@@ -271,8 +272,8 @@ class MomentPreprocessingClass:
                         possessionCounter+=1
                     
 
-                    if len(momentObject.momentArray) != 25:
-                        print("MOMENT IS NOT LENGTH 25")
+                    if len(momentObject.momentArray) != MOMENT_SIZE:
+                        print("MOMENT IS NOT LENGTH MOMENT_SIZE")
                     else:
                         currentPossession.addMoment(momentObject)
                         
@@ -293,8 +294,8 @@ class MomentPreprocessingClass:
                 if isTerminalAction:
                         afterTerminalAction = True
                         rowNumber += 1
-                        if len(momentObject.momentArray) != 25:
-                            print("MOMENT IS NOT LENGTH 25")
+                        if len(momentObject.momentArray) != MOMENT_SIZE:
+                            print("MOMENT IS NOT LENGTH MOMENT_SIZE")
                         else:
                             currentPossession.addMoment(momentObject)
                         currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
@@ -306,8 +307,8 @@ class MomentPreprocessingClass:
                     continue
 
                 
-                if len(momentObject.momentArray) != 25:
-                    print("MOMENT IS NOT LENGTH 25")
+                if len(momentObject.momentArray) != MOMENT_SIZE:
+                    print("MOMENT IS NOT LENGTH MOMENT_SIZE")
                 else:
                     currentPossession.addMoment(momentObject)
 
