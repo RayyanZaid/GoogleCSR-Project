@@ -101,7 +101,7 @@ def getInputOutputData(datasetDirectoryVariable):
 
 from keras.models import Sequential # Sequential Model
 from keras.layers import *
-from keras.callbacks import ModelCheckpoint # To save model
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau  # save model and learning rate annealing
 from keras.losses import CategoricalCrossentropy # For loss function
 from keras.metrics import CategoricalAccuracy
 from keras.optimizers import Adam
@@ -182,16 +182,72 @@ def plotLearningCurve(history):
     plt.savefig('Graphs/learning_curves.png')
     plt.show()
 
+
+mapping = {
+    0.0: "null",
+    1.0: "FG Try",
+    2.0: "Shoot F.",
+    3.0: "Nonshoot F.",
+    4.0: "Turnover"
+}
+
+@print_error_and_continue
+def count_label_frequency(actual_time_series, predicted_time_series):
+    unique_labels = np.unique(actual_time_series)
+    label_counts_actual = {label: np.sum(actual_time_series == label) for label in unique_labels}
+    label_counts_predicted = {label: np.sum(predicted_time_series == label) for label in unique_labels}
+    return label_counts_actual, label_counts_predicted
+
+@print_error_and_continue
+def plot_label_frequency(label_counts_actual, label_counts_predicted):
+    labels = [mapping[label] for label in label_counts_actual.keys()]
+    actual_counts = list(label_counts_actual.values())
+    predicted_counts = list(label_counts_predicted.values())
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    rects1 = ax.bar(x - width/2, actual_counts, width, label='Actual', color='blue')
+    rects2 = ax.bar(x + width/2, predicted_counts, width, label='Predicted', color='red')
+
+    ax.set_xlabel('Labels')
+    ax.set_ylabel('Frequency')
+    ax.set_title('Label Frequency: Actual vs. Predicted')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    plt.savefig('Graphs/label_frequency.png')
+    plt.show()
+
+@print_error_and_continue
+def plot_percent_error(label_counts_actual, label_counts_predicted):
+    labels = [mapping[label] for label in label_counts_actual.keys()]
+    actual_counts = list(label_counts_actual.values())
+    predicted_counts = list(label_counts_predicted.values())
+
+    percent_errors = [(abs(actual - predicted) / actual) * 100 if actual != 0 else 0 for actual, predicted in zip(actual_counts, predicted_counts)]
+
+    x = np.arange(len(labels))
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x, percent_errors, color='green')
+
+    ax.set_xlabel('Labels')
+    ax.set_ylabel('Percent Error')
+    ax.set_title('Percent Error: Actual vs. Predicted')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+
+    plt.savefig('Graphs/percent_error.png')
+    plt.show()
+
 @print_error_and_continue
 def plotTimeSeries(history, X_test, y_test, model):
- 
-
-    y_pred = model.predict(X_test)  # Adjust this based on your specific time series forecasting setup
-    actual_time_series = y_test  # Assuming y_test contains your actual time series data
-    predicted_time_series = y_pred  # Assuming y_pred contains your predicted time series data
-
-    actual_time_series = np.array(actual_time_series)
-    predicted_time_series = np.array(predicted_time_series)
+    y_pred = model.predict(X_test)
+    actual_time_series = y_test
+    predicted_time_series = y_pred
 
     actual_time_series = np.array(actual_time_series)
     predicted_time_series = np.array(predicted_time_series)
@@ -210,6 +266,10 @@ def plotTimeSeries(history, X_test, y_test, model):
     plt.savefig('Graphs/time_series.png')
     plt.show()
 
+    # Calculate and plot label frequency and percent error
+    label_counts_actual, label_counts_predicted = count_label_frequency(actual_time_series, selected_indices)
+    plot_label_frequency(label_counts_actual, label_counts_predicted)
+    plot_percent_error(label_counts_actual, label_counts_predicted)
 #  Cell 1 -- Get Start & End Games
 
 startGameNumber = int(input("What game number do you want to START the training?"))
@@ -273,10 +333,30 @@ for i in range(startGameNumber,endGameNumber+1,step_size):
     import matplotlib.pyplot as plt
 
     cp = ModelCheckpoint(f"{model_directory}", save_best_only=True) # saves model with lowest validation loss
-    model2.compile(loss=CategoricalCrossentropy(), optimizer=Adam(learning_rate=0.001), metrics=[CategoricalAccuracy()]) # higher the learning rate, the faster the model will try to decrease the loss function
-    history = model2.fit(X_train, y_train_encoded, validation_data=(X_valid, y_valid_encoded), epochs=20, callbacks=[cp], batch_size=8)
+    reduce_lr = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,          
+    patience=5,           
+    min_lr=0.0001         
+)
 
-    
+# Compile your model with the optimizer
+    model2.compile(
+        loss=CategoricalCrossentropy(),
+        optimizer=Adam(learning_rate=0.001),
+        metrics=[CategoricalAccuracy()]
+    )
+
+# Train your model using the learning rate annealing callback
+    history = model2.fit(
+        X_train,
+        y_train_encoded,
+        validation_data=(X_valid, y_valid_encoded),
+        epochs=50,
+        callbacks=[cp, reduce_lr],  # Include the reduce_lr callback
+        batch_size=8
+    )
+        
 
     # Cell 7 -- Delete
 

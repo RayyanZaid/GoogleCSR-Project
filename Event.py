@@ -11,7 +11,7 @@ from typing import List
 from globals import WINDOW_SIZE, MOMENT_SIZE
 
 from keras.models import load_model
-model1 = load_model(r"model1")
+model1 = load_model(r"model2")
 
 mapping = {
     0.0: "null",
