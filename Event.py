@@ -190,7 +190,7 @@ class Event:
         bar_plot = ax2.bar(range(5), y_values, tick_label=[mapping[0], mapping[1], mapping[2], mapping[3], mapping[4]])
         ax2.set_xlabel('X Labels')
         ax2.set_ylabel('Y Values')
-        ax2.set_title('Randomized Bar Graph')
+        ax2.set_title('Predicted Probabilities from LSTM')
 
         # Animation
         anim = animation.FuncAnimation(

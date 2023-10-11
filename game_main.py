@@ -16,7 +16,7 @@ import json
 
 
 if sys.gettrace() is not None:  # Check if debugger is active
-    args = argparse.Namespace(path=r"0021500494.json" , event = 16)  # Provide default values for debugging
+    args = argparse.Namespace(path=r"0021500494.json" , event = 1)  # Provide default values for debugging
 else:
     parser = argparse.ArgumentParser(description='Process arguments about an NBA game.')
     parser.add_argument('--path', type=str,
