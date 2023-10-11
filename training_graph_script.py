@@ -167,7 +167,7 @@ combined_y_test = []
 
 from keras.models import load_model
 from keras.models import Sequential # Sequential Model
-from test import createModel
+from training_script import createModel
 
 model_directory = r"model2"
 model2 : Sequential = load_model(model_directory)
