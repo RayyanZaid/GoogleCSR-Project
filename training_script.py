@@ -182,7 +182,7 @@ def plotTimeSeriesWithFrequencyAndPercentError(history, X_test, y_test, model):
     plot_percent_error(label_counts_actual, label_counts_predicted)
 
 
-pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_batches'
+pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
 
 
 combined_history = {'loss': [], 'val_loss': [], 'categorical_accuracy': [], 'val_categorical_accuracy': []}

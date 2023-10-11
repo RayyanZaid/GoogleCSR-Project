@@ -6,4 +6,4 @@ LiveResults/__pycache__
 csv_files/*.csv
 Datasets/*.json
 *.json
-/training_history_batches/*.pkl
+/training_history_groups/*.pkl

@@ -42,9 +42,9 @@ def extractFilesToDestinationFolder(inputStartIndex, inputEndIndex):
         exit()
 
     while counter < len(sevenz_files):
-        # Process files in batches
+
         startIndex = counter
-        endIndex = startIndex + batch_size
+        endIndex = startIndex + grouping_size
 
         if endIndex >= len(sevenz_files):
             endIndex = len(sevenz_files)
@@ -87,18 +87,19 @@ def getInputOutputData(datasetDirectoryVariable):
     return inputMatrix, outputVector
 
 if __name__ == "__main__":
-    # Specify the range of games you want to train on
-    startGameNumber = 3
+
+    # Specify the range of games to train
+    startGameNumber = 1
     endGameNumber = 20
-    batch_size = 5  # Number of games to process in each batch
+    grouping_size = 5  # Number of games to process in each group
 
-    histories = []  # To store training histories for each batch
 
-    for i in range(startGameNumber, endGameNumber + 1, batch_size):
+
+    for i in range(startGameNumber, endGameNumber + 1, grouping_size):
         currentStartGameNumber = i
-        currentEndGameNumber = min(i + batch_size - 1, endGameNumber)
+        currentEndGameNumber = min(i + grouping_size - 1, endGameNumber)
 
-        # Extract game JSON data for the current batch
+        # Extract game JSON data for the current group
         extractFilesToDestinationFolder(currentStartGameNumber, currentEndGameNumber)
 
         datasetDirectoryVariable = os.listdir(destination_folder)
@@ -131,11 +132,11 @@ if __name__ == "__main__":
             
         }
 
-        with open(f'training_history_batches/{i}.pkl', 'wb') as file:
+        with open(f'training_history_groups/{i}.pkl', 'wb') as file:
             pickle.dump(training_data_for_pickle, file)
 
 
-        # Delete extracted JSON files for the current batch
+        # Delete extracted JSON files for the current group
         delete_files_in_folder(destination_folder)
 
     print("DONE")
