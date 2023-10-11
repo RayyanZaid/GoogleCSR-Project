@@ -57,7 +57,7 @@ def createTemporalWindows(possessions: List[Possession]):
             temporalWindows.insert(0, temporalWindow)
 
         eachPossession.temporalWindows = temporalWindows
-        print("Added Temporal Windows of Possession with Terminal Action")
+        
 
 
 def processDataForLSTM(possessions : List[Possession]):

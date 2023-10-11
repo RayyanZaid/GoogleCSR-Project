@@ -110,11 +110,8 @@ class MomentPreprocessingClass:
         match = re.search(pattern, json_path)
         self.currentTeamPossessionID : int
         if match:
-
             number_part = match.group()
-            # print("Extracted number part:", number_part)
-        else:
-            print("No number found in the text.")
+       
 
         df_From_NBA_API = playbyplay.PlayByPlay(number_part).get_data_frames()[0]
 
@@ -263,18 +260,15 @@ class MomentPreprocessingClass:
                     if currentShotClock > previousShotClock:
                         afterTerminalAction = False
                         
-                        if len(momentObject.momentArray) != MOMENT_SIZE:
-                            print("MOMENT IS NOT LENGTH MOMENT_SIZE")
-                        else:
+                        if len(momentObject.momentArray) == MOMENT_SIZE:
                             currentPossession.addMoment(momentObject)
+
                         allPossessions.append(currentPossession)
                         currentPossession = Possession()
                         possessionCounter+=1
                     
 
-                    if len(momentObject.momentArray) != MOMENT_SIZE:
-                        print("MOMENT IS NOT LENGTH MOMENT_SIZE")
-                    else:
+                    if len(momentObject.momentArray) == MOMENT_SIZE:
                         currentPossession.addMoment(momentObject)
                         
                     previousShotClock = currentShotClock
@@ -294,9 +288,7 @@ class MomentPreprocessingClass:
                 if isTerminalAction:
                         afterTerminalAction = True
                         rowNumber += 1
-                        if len(momentObject.momentArray) != MOMENT_SIZE:
-                            print("MOMENT IS NOT LENGTH MOMENT_SIZE")
-                        else:
+                        if len(momentObject.momentArray) == MOMENT_SIZE:
                             currentPossession.addMoment(momentObject)
                         currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
                         continue
@@ -307,9 +299,7 @@ class MomentPreprocessingClass:
                     continue
 
                 
-                if len(momentObject.momentArray) != MOMENT_SIZE:
-                    print("MOMENT IS NOT LENGTH MOMENT_SIZE")
-                else:
+                if len(momentObject.momentArray) == MOMENT_SIZE:
                     currentPossession.addMoment(momentObject)
 
 
