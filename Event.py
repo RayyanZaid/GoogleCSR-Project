@@ -34,7 +34,7 @@ def convertMomentstoModelInput(listOfMoments : List[List[float]], currentMomentA
     
     listOfMoments.append(currentMomentArray)
     np_list = np.array(listOfMoments)
-    print(np_list.shape)
+    # print(np_list.shape)
     return listOfMoments
 
 
@@ -103,10 +103,10 @@ class Event:
             self.awayTeamPossessionCounter +=1
         
         if self.homeTeamPossessionCounter >= self.awayTeamPossessionCounter:
-            print(self.event["home"]["name"])
+            # print(self.event["home"]["name"])
             self.currentPossessionTeamID = self.homeTeamID
         else:
-            print(self.event["visitor"]["name"])
+            # print(self.event["visitor"]["name"])
             self.currentPossessionTeamID = self.awayTeamID
 
         momentObject.whichSideIsOffensive()

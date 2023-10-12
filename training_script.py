@@ -185,18 +185,14 @@ def plotTimeSeriesWithFrequencyAndPercentError(history, X_test, y_test, model):
 pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
 
 
-combined_history = {'loss': [], 'val_loss': [], 'categorical_accuracy': [], 'val_categorical_accuracy': []}
-combined_X_train = []
-combined_X_test = []
-combined_y_test = []
+data = {     'X_train' : [],
+            'X_test'  : [],
+            'y_train_encoded' : [],
+            'y_test'  : [],
+            'X_valid' : [],
+            'y_valid_encoded' : []}
+
 # Iteration through pkl files in the directory
-
-from keras.models import load_model
-from keras.models import Sequential # Sequential Model
-from training_data_processing_script import createModel
-
-model_directory = r"model2"
-model2 : Sequential = load_model(model_directory)
 
 
 for filename in os.listdir(pkl_directory):
@@ -205,59 +201,62 @@ for filename in os.listdir(pkl_directory):
         with open(file_path, 'rb') as file:
             training_data_for_pickle = pickle.load(file)
             # Merge the data from each file into the combined_history dictionary
-            for key in combined_history:
-                combined_history[key].extend(training_data_for_pickle['history'][key])
-                combined_X_train.extend(training_data_for_pickle['X_train'])
-                combined_X_test.extend(training_data_for_pickle['X_test'])
-                combined_y_test.extend(training_data_for_pickle['y_test'])
+            for key in data:
+                data[key].extend(training_data_for_pickle[key])
 
-combined_X_train = np.array(combined_X_train)
-combined_X_test = np.array(combined_X_test)
-combined_y_test = np.array(combined_y_test)
+X_train = np.array(data['X_train'])
+y_train_encoded = np.array(data['y_train_encoded'])
+X_valid = np.array(data['X_valid'])
+y_valid_encoded = np.array(data['y_valid_encoded'])
+X_test = np.array(data['X_test'])
+y_test = np.array(data['y_test'])
 
-print(combined_X_train.shape)
-print(combined_X_test.shape)
-print(combined_y_test.shape)
-plotLoss(combined_history)
-plotAccuracy(combined_history)
-plotLearningCurve(combined_history,combined_X_train)
-plotTimeSeriesWithFrequencyAndPercentError(combined_history,combined_X_test,combined_y_test,model2)
+
 print("Done")
 
 
 
-# FIX LATER 
-# # Create model
 # from keras.models import load_model
+from keras.models import Sequential # Sequential Model
 
-# model_directory = r"model2"
-# model2 : Sequential
+# # FIX LATER 
+# # Create model
+from keras.models import load_model
 
-# if not os.path.exists(model_directory):
-#     model2 = createModel()
-# else:
-#     model2 = load_model(model_directory)
+model_directory = r"model2"
+model2 : Sequential
 
-# # Train the model
-# cp = ModelCheckpoint(f"{model_directory}", save_best_only=True)
-# reduce_lr = ReduceLROnPlateau(
-#     monitor='val_loss',
-#     factor=0.5,
-#     patience=5,
-#     min_lr=0.0001
-# )
+if not os.path.exists(model_directory):
+    model2 = createModel()
+else:
+    model2 = load_model(model_directory)
 
-# model2.compile(
-#     loss=CategoricalCrossentropy(),
-#     optimizer=Adam(learning_rate=0.001),
-#     metrics=[CategoricalAccuracy()]
-# )
+# Train the model
+cp = ModelCheckpoint(f"{model_directory}", save_best_only=True)
+reduce_lr = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=5,
+    min_lr=0.0001
+)
 
-# history = model2.fit(
-#     X_train,
-#     y_train_encoded,
-#     validation_data=(X_valid, y_valid_encoded),
-#     epochs=50,
-#     callbacks=[cp, reduce_lr],
-#     batch_size=8
-# )
+model2.compile(
+    loss=CategoricalCrossentropy(),
+    optimizer=Adam(learning_rate=0.001),
+    metrics=[CategoricalAccuracy()]
+)
+
+history = model2.fit(
+    X_train,
+    y_train_encoded,
+    validation_data=(X_valid, y_valid_encoded),
+    epochs=50,
+    callbacks=[cp, reduce_lr],
+    batch_size=8
+)
+
+
+plotLoss(history.history)
+plotAccuracy(history.history)
+plotLearningCurve(history.history,X_train)
+plotTimeSeriesWithFrequencyAndPercentError(history.history,X_test,y_test,model2)
