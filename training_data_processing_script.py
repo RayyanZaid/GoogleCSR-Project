@@ -89,8 +89,8 @@ def getInputOutputData(datasetDirectoryVariable):
 if __name__ == "__main__":
 
     # Specify the range of games to train
-    startGameNumber = 1
-    endGameNumber = 20
+    startGameNumber = 21
+    endGameNumber = 60
     grouping_size = 5  # Number of games to process in each group
 
 
