@@ -121,8 +121,8 @@ def getInputOutputData(datasetDirectoryVariable):
 if __name__ == "__main__":
 
     # Specify the range of games to train
-    startGameNumber = 6
-    endGameNumber = 120
+    startGameNumber = 145
+    endGameNumber = 180
     grouping_size = 5  # Number of games to process in each group
 
 
@@ -143,6 +143,9 @@ if __name__ == "__main__":
         print(f"Starting training on Games {currentStartGameNumber} to {currentEndGameNumber}")
         inputMatrix, outputVector, numPossessions, score = getInputOutputData(datasetDirectoryVariable)
 
+        if len(inputMatrix) == 0:   # if JSON file is corrupted
+            delete_files_in_folder(destination_folder)
+            continue
 
         totalScore += score
         totalNumPossessions += numPossessions
@@ -152,6 +155,8 @@ if __name__ == "__main__":
 
         # print(inputMatrix.shape)
         # print(outputVector.shape)
+
+        
 
         # Organize Train/Test/Validation data
         X_train, X_rem, y_train, y_rem = train_test_split(inputMatrix, outputVector, train_size=0.8, random_state=42)
@@ -183,9 +188,6 @@ if __name__ == "__main__":
             }
         )
 
-        # Delete extracted JSON files for the current group
-        delete_files_in_folder(destination_folder)
-
         # Print results to the console
         for result in results_data:
             print(
@@ -193,7 +195,7 @@ if __name__ == "__main__":
             )
 
         # Save results to a text file
-        with open("training_results.txt", "a") as txt_file:
+        with open(f"training_results{startGameNumber}.txt", "w") as txt_file:
             for result in results_data:
                 txt_file.write(
                     f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})\n"

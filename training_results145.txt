@@ -1,0 +1,8 @@
+Range (145, 149) : (Score: 984), (Number of Possessions: 592)
+Range (150, 154) : (Score: 2040), (Number of Possessions: 1072)
+Range (155, 159) : (Score: 2819), (Number of Possessions: 1415)
+Range (160, 164) : (Score: 3834), (Number of Possessions: 2373)
+Range (165, 169) : (Score: 4863), (Number of Possessions: 2957)
+Range (170, 174) : (Score: 5835), (Number of Possessions: 3346)
+Range (175, 179) : (Score: 6831), (Number of Possessions: 3733)
+Range (180, 180) : (Score: 7106), (Number of Possessions: 3844)
