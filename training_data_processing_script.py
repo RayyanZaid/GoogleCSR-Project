@@ -9,7 +9,8 @@ from helperFunctions import createTemporalWindows, processDataForLSTM
 from getPossessionsFromJSON import MomentPreprocessingClass
 from globals import print_error_and_continue
 import pickle
-
+from nba_api.stats.endpoints import playbyplay
+import re
 
 folder_path_with_7z = r"C:\Users\rayya\Desktop\NBA-Player-Movements\data\2016.NBA.Raw.SportVU.Game.Logs"
 destination_folder = r"Current_Training_JSON"
@@ -68,10 +69,36 @@ def extractFilesToDestinationFolder(inputStartIndex, inputEndIndex):
 
 
 
+def getTotalPointsScoredInAGame(jsonPath):
+    
+    pattern = r'\d+'
+
+    match = re.search(pattern, jsonPath)
+        
+    gameID = match.group()
+
+    
+    plays = playbyplay.PlayByPlay(gameID).get_normalized_dict()['PlayByPlay']
+    home_score = 0
+    visitor_score = 0
+
+    for play in plays:
+        if play['EVENTMSGTYPE'] == 13:  # Check for end of 4th quarter
+
+            score_text = play['SCORE']
+            if score_text:
+                # Split the score string into home and visitor scores
+                home, visitor = score_text.split('-')
+                home_score = int(home.strip())
+                visitor_score = int(visitor.strip())
+
+    return home_score + visitor_score
+
 
 @print_error_and_continue
 def getInputOutputData(datasetDirectoryVariable):
 
+    allScore = 0
     allPossessions : List[Possession] = []
     for eachJSON in datasetDirectoryVariable:
         json_path = os.path.join(destination_folder, eachJSON)
@@ -81,19 +108,27 @@ def getInputOutputData(datasetDirectoryVariable):
         possessions : List[Possession] = momentPreprocessing.getData(json_path)
         createTemporalWindows(possessions)
         allPossessions.extend(possessions)
+        score = getTotalPointsScoredInAGame(json_path)
+        allScore += score
+
+
 
     inputMatrix , outputVector = processDataForLSTM(possessions)
+    
 
-    return inputMatrix, outputVector
+    return inputMatrix, outputVector, len(allPossessions), allScore
 
 if __name__ == "__main__":
 
     # Specify the range of games to train
-    startGameNumber = 101
-    endGameNumber = 110
+    startGameNumber = 6
+    endGameNumber = 120
     grouping_size = 5  # Number of games to process in each group
 
 
+    totalScore = 0
+    totalNumPossessions = 0
+    results_data = []
 
     for i in range(startGameNumber, endGameNumber + 1, grouping_size):
         currentStartGameNumber = i
@@ -106,7 +141,11 @@ if __name__ == "__main__":
 
         # Get Input/Output Data
         print(f"Starting training on Games {currentStartGameNumber} to {currentEndGameNumber}")
-        inputMatrix, outputVector = getInputOutputData(datasetDirectoryVariable)
+        inputMatrix, outputVector, numPossessions, score = getInputOutputData(datasetDirectoryVariable)
+
+
+        totalScore += score
+        totalNumPossessions += numPossessions
 
         inputMatrix = np.array(inputMatrix)   # SHAPE: number of windows 1500, WINDOW_SIZE, MOMENT_SIZE
         outputVector = np.array(outputVector) # SHAPE: number of windows 1500, 1 
@@ -136,6 +175,29 @@ if __name__ == "__main__":
             pickle.dump(training_data_for_pickle, file)
 
 
+        results_data.append(
+            {
+                "Range": (currentStartGameNumber, currentEndGameNumber),
+                "Score": totalScore,
+                "Number of Possessions": totalNumPossessions,
+            }
+        )
+
+        # Delete extracted JSON files for the current group
+        delete_files_in_folder(destination_folder)
+
+        # Print results to the console
+        for result in results_data:
+            print(
+                f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})"
+            )
+
+        # Save results to a text file
+        with open("training_results.txt", "a") as txt_file:
+            for result in results_data:
+                txt_file.write(
+                    f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})\n"
+                )
         # Delete extracted JSON files for the current group
         delete_files_in_folder(destination_folder)
 
