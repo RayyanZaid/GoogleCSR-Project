@@ -1,0 +1,7 @@
+Range (371, 375) : (Score: 1021), (Number of Possessions: 526)
+Range (376, 380) : (Score: 2000), (Number of Possessions: 1419)
+Range (386, 390) : (Score: 2959), (Number of Possessions: 2069)
+Range (391, 395) : (Score: 3939), (Number of Possessions: 3019)
+Range (396, 400) : (Score: 4921), (Number of Possessions: 3637)
+Range (401, 405) : (Score: 5882), (Number of Possessions: 4254)
+Range (406, 410) : (Score: 6888), (Number of Possessions: 4839)
