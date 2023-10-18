@@ -1,0 +1,8 @@
+Range (501, 505) : (Score: 980), (Number of Possessions: 588)
+Range (506, 510) : (Score: 2026), (Number of Possessions: 1231)
+Range (511, 515) : (Score: 3011), (Number of Possessions: 1815)
+Range (516, 520) : (Score: 4074), (Number of Possessions: 2316)
+Range (521, 525) : (Score: 5082), (Number of Possessions: 2909)
+Range (526, 530) : (Score: 6205), (Number of Possessions: 3448)
+Range (531, 535) : (Score: 7211), (Number of Possessions: 4215)
+Range (536, 540) : (Score: 8192), (Number of Possessions: 4717)
