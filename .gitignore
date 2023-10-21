@@ -7,3 +7,4 @@ csv_files/*.csv
 Datasets/*.json
 *.json
 /training_history_groups/*.pkl
+*.pkl

@@ -24,7 +24,7 @@ def plotLoss(history):
     plt.ylabel('Loss')
     plt.title('Loss Plot Over Epochs')
     plt.legend()
-    plt.savefig('Graphs/loss_plot.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/loss_plot.png')
     plt.show()
 
 @print_error_and_continue
@@ -36,7 +36,7 @@ def plotAccuracy(history):
     plt.ylabel('Accuracy')
     plt.title('Accuracy Plot Over Epochs')
     plt.legend()
-    plt.savefig('Graphs/accuracy_plot.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/accuracy_plot.png')
     plt.show()
 
 @print_error_and_continue
@@ -73,7 +73,7 @@ def plotLearningCurve(history,X_train):
     plt.title('Learning Curve - Accuracy')
 
     plt.tight_layout()
-    plt.savefig('Graphs/learning_curves.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/learning_curves.png')
     plt.show()
 
 
@@ -112,7 +112,7 @@ def plot_label_frequency(label_counts_actual, label_counts_predicted):
     ax.set_xticklabels(labels)
     ax.legend()
 
-    plt.savefig('Graphs/label_frequency.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/label_frequency.png')
     plt.show()
 
 @print_error_and_continue
@@ -134,7 +134,7 @@ def plot_percent_error(label_counts_actual, label_counts_predicted):
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
 
-    plt.savefig('Graphs/percent_error.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/percent_error.png')
     plt.show()
 
 @print_error_and_continue
@@ -178,7 +178,7 @@ def plot_reliability_curve(model, X_test, y_test, class_index, n_bins=10):
     plt.ylabel('Fraction of Positives')
     plt.title('Reliability Curve')
     plt.grid()
-    plt.savefig(f'Graphs/reliability_curve{mapping[class_index]}.png')
+    plt.savefig(f'Graphs_1D_Conv_LSTM/reliability_curve{mapping[class_index]}.png')
     plt.show()
 
 
@@ -313,6 +313,7 @@ def trainModel(model, directory):
 
 # Create and train the model
 model = create1DConvLSTM()
+name = "1D_Conv_LSTM"
 history = trainModel(model, "1D_Conv_LSTM")
 
 # model = load_model("stacked_LSTM")
