@@ -11,7 +11,7 @@ from typing import List
 from globals import WINDOW_SIZE, MOMENT_SIZE
 
 from keras.models import load_model
-model1 = load_model(r"stacked_LSTM")
+model1 = load_model(r"1D_Conv_LSTM")
 
 mapping = {
     0.0: "null",
