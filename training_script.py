@@ -15,22 +15,6 @@ from keras.metrics import CategoricalAccuracy
 from keras.optimizers import Adam
 
 
-
-@print_error_and_continue
-def createModel() -> Sequential:
-
-    model2 = Sequential()
-    model2.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
-    model2.add(LSTM(64))
-    model2.add(Dense(8, activation='relu'))
-    model2.add(Dense(8, activation='sigmoid')) 
-    model2.add(Dropout(0.5))  # prevents overfitting
-    model2.add(Dense(16, activation='relu'))  
-    model2.add(Dense(5, activation='softmax'))
-    model2.summary()
-
-    return model2
-
 @print_error_and_continue
 def plotLoss(history):
     # Plot training and validation loss
@@ -40,7 +24,7 @@ def plotLoss(history):
     plt.ylabel('Loss')
     plt.title('Loss Plot Over Epochs')
     plt.legend()
-    plt.savefig('Graphs/loss_plot.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/loss_plot.png')
     plt.show()
 
 @print_error_and_continue
@@ -52,7 +36,7 @@ def plotAccuracy(history):
     plt.ylabel('Accuracy')
     plt.title('Accuracy Plot Over Epochs')
     plt.legend()
-    plt.savefig('Graphs/accuracy_plot.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/accuracy_plot.png')
     plt.show()
 
 @print_error_and_continue
@@ -89,7 +73,7 @@ def plotLearningCurve(history,X_train):
     plt.title('Learning Curve - Accuracy')
 
     plt.tight_layout()
-    plt.savefig('Graphs/learning_curves.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/learning_curves.png')
     plt.show()
 
 
@@ -128,7 +112,7 @@ def plot_label_frequency(label_counts_actual, label_counts_predicted):
     ax.set_xticklabels(labels)
     ax.legend()
 
-    plt.savefig('Graphs/label_frequency.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/label_frequency.png')
     plt.show()
 
 @print_error_and_continue
@@ -150,11 +134,11 @@ def plot_percent_error(label_counts_actual, label_counts_predicted):
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
 
-    plt.savefig('Graphs/percent_error.png')
+    plt.savefig('Graphs_1D_Conv_LSTM/percent_error.png')
     plt.show()
 
 @print_error_and_continue
-def plotTimeSeriesWithFrequencyAndPercentError(history, X_test, y_test, model):
+def plotLabelFreqAndPercentErr(history, X_test, y_test, model):
     y_pred = model.predict(X_test)
     actual_time_series = y_test
     predicted_time_series = y_pred
@@ -165,23 +149,55 @@ def plotTimeSeriesWithFrequencyAndPercentError(history, X_test, y_test, model):
     # Extract the selected index with the highest probability for each time step
     selected_indices = [np.argmax(probabilities) for probabilities in predicted_time_series]
 
-    # Plot actual vs. predicted time series
-    plt.figure(figsize=(10, 6))
-    plt.plot(actual_time_series, label='Actual Time Series', color='blue', marker='o')
-    plt.plot(selected_indices, label='Predicted Time Series', color='red', marker='x', linestyle='--')
-    plt.xlabel('Time Steps')
-    plt.ylabel('Selected Index (0-4)')
-    plt.legend()
-    plt.title('Actual vs. Predicted Time Series')
-    plt.savefig('Graphs/time_series.png')
-    plt.show()
-
     # Calculate and plot label frequency and percent error
     label_counts_actual, label_counts_predicted = count_label_frequency(actual_time_series, selected_indices)
     plot_label_frequency(label_counts_actual, label_counts_predicted)
     plot_percent_error(label_counts_actual, label_counts_predicted)
 
+import matplotlib.pyplot as plt
+from sklearn.calibration import calibration_curve
 
+from sklearn.calibration import calibration_curve
+
+def plot_reliability_curve(model, X_test, y_test, class_index, n_bins=10):
+    # Get the predicted probabilities for each class
+    y_prob = model.predict(X_test)[:, class_index]
+
+    # Convert multi-class labels to binary labels for the specific class
+    pos_label = class_index  # Use the class index as the positive label
+    y_true_binary = (y_test == pos_label).astype(int)
+
+    # Create the reliability curve
+    prob_true, prob_pred = calibration_curve(y_true_binary, y_prob, n_bins=n_bins)
+
+    # Plot the reliability curve
+    plt.figure(figsize=(8, 6))
+    plt.plot(prob_pred, prob_true, marker='o', linestyle='--', color='blue')
+    plt.plot([0, 1], [0, 1], linestyle='--', color='red')
+    plt.xlabel('Mean Predicted Probability')
+    plt.ylabel('Fraction of Positives')
+    plt.title('Reliability Curve')
+    plt.grid()
+    plt.savefig(f'Graphs_1D_Conv_LSTM/reliability_curve{mapping[class_index]}.png')
+    plt.show()
+
+
+
+
+
+
+
+
+from keras.models import Sequential
+from keras.layers import InputLayer, LSTM, Dense, Dropout
+from keras.optimizers import Adam
+from keras.losses import CategoricalCrossentropy
+from keras.metrics import CategoricalAccuracy
+from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define your data, X_train, y_train_encoded, X_valid, y_valid_encoded, X_test, y_test here
 pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
 
 
@@ -194,9 +210,11 @@ data = {     'X_train' : [],
 
 # Iteration through pkl files in the directory
 
+count = 0
 
 for filename in os.listdir(pkl_directory):
     if filename.endswith('.pkl'):
+        count +=1
         file_path = os.path.join(pkl_directory, filename)
         with open(file_path, 'rb') as file:
             training_data_for_pickle = pickle.load(file)
@@ -204,6 +222,7 @@ for filename in os.listdir(pkl_directory):
             for key in data:
                 data[key].extend(training_data_for_pickle[key])
 
+print(count)
 X_train = np.array(data['X_train'])
 y_train_encoded = np.array(data['y_train_encoded'])
 X_valid = np.array(data['X_valid'])
@@ -214,49 +233,95 @@ y_test = np.array(data['y_test'])
 
 print("Done")
 
+@print_error_and_continue
+def createModel() -> Sequential:
+    model = Sequential()
+    model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
+    
+    # Stacked LSTM layers
+    model.add(LSTM(64, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(64, return_sequences=True))
+    model.add(LSTM(64))  # You can add more LSTM layers if needed
+    
+    model.add(Dense(16, activation='relu'))  # Additional dense layer
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(8, activation='sigmoid'))
+    model.add(Dropout(0.5))
+    model.add(Dense(16, activation='relu'))
+    model.add(Dense(5, activation='softmax'))
+    model.summary()
+    return model
 
+from keras.models import Sequential, load_model
+from keras.layers import Conv1D, MaxPooling1D, LSTM, Dense, Dropout
+from keras.optimizers import Adam
 
-# from keras.models import load_model
-from keras.models import Sequential # Sequential Model
+def create1DConvLSTM():
+    model = Sequential()
+    
+    # 1D Convolutional Layer
+    model.add(Conv1D(64, kernel_size=3, activation='relu', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
+    model.add(MaxPooling1D(pool_size=2))
+    
+    # LSTM layers
+    model.add(LSTM(64, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(64, return_sequences=True))
+    model.add(LSTM(64))  # You can add more LSTM layers if needed
+    
+    # Dense layers
+    model.add(Dense(16, activation='relu'))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(8, activation='sigmoid'))
+    model.add(Dropout(0.5))
+    model.add(Dense(16, activation='relu'))
+    
+    # Output layer
+    model.add(Dense(5, activation='softmax'))
+    
+    model.summary()
+    
+    return model
 
-# # FIX LATER 
-# # Create model
-from keras.models import load_model
+def trainModel(model, directory):
+    cp = ModelCheckpoint(directory, save_best_only=True)
+    reduce_lr = ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.5,
+        patience=5,
+        min_lr=0.0001
+    )
 
-model_directory = r"model2"
-model2 : Sequential
+    model.compile(
+        loss=CategoricalCrossentropy(),
+        optimizer=Adam(learning_rate=0.001),
+        metrics=[CategoricalAccuracy()]
+    )
 
-if not os.path.exists(model_directory):
-    model2 = createModel()
-else:
-    model2 = load_model(model_directory)
+    history = model.fit(
+        X_train,
+        y_train_encoded,
+        validation_data=(X_valid, y_valid_encoded),
+        epochs=100,
+        callbacks=[cp, reduce_lr],
+        batch_size=8
+    )
 
-# Train the model
-cp = ModelCheckpoint(f"{model_directory}", save_best_only=True)
-reduce_lr = ReduceLROnPlateau(
-    monitor='val_loss',
-    factor=0.5,
-    patience=5,
-    min_lr=0.0001
-)
+    with open('history.pkl', 'wb') as file:
+        pickle.dump(history, file)
+        
+    return history
 
-model2.compile(
-    loss=CategoricalCrossentropy(),
-    optimizer=Adam(learning_rate=0.001),
-    metrics=[CategoricalAccuracy()]
-)
+# Create and train the model
+model = create1DConvLSTM()
+name = "1D_Conv_LSTM"
+history = trainModel(model, "1D_Conv_LSTM")
 
-history = model2.fit(
-    X_train,
-    y_train_encoded,
-    validation_data=(X_valid, y_valid_encoded),
-    epochs=50,
-    callbacks=[cp, reduce_lr],
-    batch_size=8
-)
-
+# model = load_model("stacked_LSTM")
 
 plotLoss(history.history)
 plotAccuracy(history.history)
 plotLearningCurve(history.history,X_train)
-plotTimeSeriesWithFrequencyAndPercentError(history.history,X_test,y_test,model2)
+plotLabelFreqAndPercentErr(history.history,X_test,y_test,model)
+
+for eachLabel in mapping:
+    plot_reliability_curve(model,X_test,y_test,int(eachLabel))

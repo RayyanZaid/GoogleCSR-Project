@@ -54,7 +54,7 @@ from typing import List
 from Possession import Possession
 import pandas as pd
 
-import ast
+
 import pandas as pd
 
 
@@ -208,9 +208,14 @@ class MomentPreprocessingClass:
         currentShotClock = 0
         previousShotClock = 25
 
+        currentGameClock = 0
+        previousGameClock = 730
         momentPreprocessingClass = MomentPreprocessingClass(json_path)
 
         afterTerminalAction = False
+
+        
+        
         for eachEvent in self.events:
             homeTeamID : int = eachEvent['home']['teamid']
             visitorTeamID : int = eachEvent['visitor']['teamid']
@@ -219,10 +224,12 @@ class MomentPreprocessingClass:
 
             for eachMoment in moments:
 
+                
+
                 momentObject = Moment(eachMoment)
                 momentObject.whichSideIsOffensive()
                 momentObject.whichTeamHasPossession()
-                
+
                 if momentObject.possessingTeamID == None:
                     continue
                 
@@ -239,6 +246,10 @@ class MomentPreprocessingClass:
                 momentObject.fillMomentFromJSON(self.currentTeamPossessionID)
                 
                 currentShotClock = momentObject.shot_clock
+                currentGameClock = momentObject.game_clock
+
+                if currentGameClock > previousGameClock:
+                    continue
                 
                 if(momentPreprocessingClass.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
                             continue
@@ -255,6 +266,8 @@ class MomentPreprocessingClass:
                     isTerminalAction = True
 
                 
+
+
                 if afterTerminalAction:
 
                     if currentShotClock > previousShotClock:
@@ -264,6 +277,9 @@ class MomentPreprocessingClass:
                             currentPossession.addMoment(momentObject)
 
                         allPossessions.append(currentPossession)
+
+        
+
                         currentPossession = Possession()
                         possessionCounter+=1
                     
@@ -272,6 +288,7 @@ class MomentPreprocessingClass:
                         currentPossession.addMoment(momentObject)
                         
                     previousShotClock = currentShotClock
+                    previousGameClock = currentGameClock
                         
                     rowNumber += 1
                     continue
@@ -295,6 +312,7 @@ class MomentPreprocessingClass:
 
                 if currentShotClock == previousShotClock:
                     previousShotClock = currentShotClock
+                    previousGameClock = currentGameClock
                     rowNumber += 1
                     continue
 
@@ -305,6 +323,7 @@ class MomentPreprocessingClass:
 
                 rowNumber += 1
                 previousShotClock = currentShotClock
+                previousGameClock = currentGameClock
 
         return allPossessions
 

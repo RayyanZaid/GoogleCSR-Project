@@ -1,0 +1,6 @@
+Range (475, 479) : (Score: 1169), (Number of Possessions: 1033)
+Range (480, 484) : (Score: 2194), (Number of Possessions: 1542)
+Range (485, 489) : (Score: 3237), (Number of Possessions: 2161)
+Range (490, 494) : (Score: 4239), (Number of Possessions: 2553)
+Range (495, 499) : (Score: 5239), (Number of Possessions: 3257)
+Range (500, 500) : (Score: 5437), (Number of Possessions: 3450)

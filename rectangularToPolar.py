@@ -43,7 +43,13 @@ class RectangularToPolar:
     def returnDirection(self) -> float:
 
         shouldAdd : bool = self.shouldAddAngle()
-        yOverX = (abs(self.hoop_y - self.player_y)) / (abs(self.hoop_x - self.player_x))
+        
+        yOverX : float
+
+        if (abs(self.hoop_x - self.player_x)) == 0:
+            yOverX = 0
+        else:    
+            yOverX = (abs(self.hoop_y - self.player_y)) / (abs(self.hoop_x - self.player_x))
 
         angle = np.degrees(np.arctan(yOverX))
 
