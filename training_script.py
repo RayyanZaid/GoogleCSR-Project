@@ -271,13 +271,13 @@ def create1DConvLSTM():
     model.add(LSTM(64, return_sequences=True))  # return_sequences=True for stacked LSTM
     model.add(LSTM(64, return_sequences=True))
     model.add(LSTM(64))  # You can add more LSTM layers if needed
-     
+    
     # Dense layers
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(8, activation='relu'))
-    model.add(Dense(8, activation='sigmoid'))
+    model.add(Dense(75, activation='relu'))
+    model.add(Dense(32, activation='relu'))
+    # model.add(Dense(16, activation='sigmoid'))
     model.add(Dropout(0.5))
-    model.add(Dense(16, activation='relu'))
+    model.add(Dense(8, activation='relu'))
     
     # Output layer
     model.add(Dense(5, activation='softmax'))
@@ -313,8 +313,16 @@ def trainModel(model, directory):
     return history
 
 # Create and train the model
-model = createStackedLSTM()
-name = "Stacked_LSTM_v2"
+model = create1DConvLSTM()
+name = "1D_Conv_LSTM_v3"
+
+# Define the directory path
+directory = f'Graphs_{name}'
+
+# Check if the directory exists, and if not, create it
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
 history = trainModel(model, name)
 
 # model = load_model("stacked_LSTM")
