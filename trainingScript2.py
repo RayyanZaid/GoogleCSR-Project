@@ -253,8 +253,9 @@ def createStackedLSTM() -> Sequential:
     model.add(Dense(5, activation='softmax'))
     
     model.summary()
-    
+
     return model
+
 
 from keras.models import Sequential, load_model
 from keras.layers import Conv1D, MaxPooling1D, LSTM, Dense, Dropout
@@ -262,22 +263,21 @@ from keras.optimizers import Adam
 
 def create1DConvLSTM():
     model = Sequential()
+    model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
     
     # 1D Convolutional Layer
-    model.add(Conv1D(64, kernel_size=3, activation='tanh', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
+    model.add(Conv1D(48, kernel_size=3,activation='tanh'))
     model.add(MaxPooling1D(pool_size=2))
-    
-    # LSTM layers
-    model.add(LSTM(64, return_sequences=True, activation='relu'))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(64, return_sequences=True, activation='relu'))
-    model.add(LSTM(64,activation='tanh'))  # You can add more LSTM layers if needed
+
+    # Stacked LSTM layers
+    model.add(LSTM(32, return_sequences=True, activation='tanh'))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True, activation='tanh'))
+    model.add(LSTM(32,activation='tanh'))
     
     # Dense layers
-    model.add(Dense(75, activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    # model.add(Dense(16, activation='relu'))
+    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(8, activation='relu'))
+    model.add(Dense(32, activation='relu'))
     
     # Output layer
     model.add(Dense(5, activation='softmax'))
@@ -297,7 +297,7 @@ def trainModel(model, directory):
 
     model.compile(
         loss='categorical_crossentropy',
-        optimizer=Adam(learning_rate=0.001),
+        optimizer=Adam(learning_rate=0.0005),
         metrics=['categorical_accuracy']
     )
 
@@ -313,8 +313,8 @@ def trainModel(model, directory):
     return history
 
 # Create and train the model
-model = createStackedLSTM()
-name = "Stacked_LSTM_v3"
+model = create1DConvLSTM()
+name = "1D_Conv__LSTM_v4"
 
 # Define the directory path
 directory = f'Graphs_{name}'

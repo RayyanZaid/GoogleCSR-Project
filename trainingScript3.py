@@ -238,16 +238,13 @@ def createStackedLSTM() -> Sequential:
     model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
     
     # Stacked LSTM layers
-    model.add(LSTM(64, return_sequences=True, activation='relu'))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(64, return_sequences=True, activation='relu'))
-    model.add(LSTM(64,activation='tanh'))  # You can add more LSTM layers if needed
+    model.add(LSTM(32, return_sequences=True, activation='tanh'))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True, activation='tanh'))
+    model.add(LSTM(32,activation='tanh')) 
     
     # Dense layers
-    model.add(Dense(75, activation='relu'))
+    model.add(Dense(128, activation='relu'))
     model.add(Dense(32, activation='relu'))
-    # model.add(Dense(16, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(8, activation='relu'))
     
     # Output layer
     model.add(Dense(5, activation='softmax'))
@@ -314,7 +311,7 @@ def trainModel(model, directory):
 
 # Create and train the model
 model = createStackedLSTM()
-name = "Stacked_LSTM_v3"
+name = "Stacked_LSTM_v4_DeepHoops"
 
 # Define the directory path
 directory = f'Graphs_{name}'
