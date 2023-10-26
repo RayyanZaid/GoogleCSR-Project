@@ -288,7 +288,7 @@ def create1DConvLSTM():
 
 def trainModel(model, directory):
     batch_size = 8
-    epochs = 100
+    epochs = 200
 
     # Define the callbacks
     cp = ModelCheckpoint(directory, save_best_only=True)
@@ -297,7 +297,7 @@ def trainModel(model, directory):
 
     model.compile(
         loss='categorical_crossentropy',
-        optimizer=Adam(learning_rate=0.0005),
+        optimizer=Adam(learning_rate=0.00005),
         metrics=['categorical_accuracy']
     )
 
@@ -314,7 +314,7 @@ def trainModel(model, directory):
 
 # Create and train the model
 model = create1DConvLSTM()
-name = "1D_Conv__LSTM_v4"
+name = "1D_Conv_LSTM_v5_MoreEpochs"
 
 # Define the directory path
 directory = f'Graphs_{name}'
