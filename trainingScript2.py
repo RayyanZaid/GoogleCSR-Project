@@ -261,23 +261,29 @@ from keras.models import Sequential, load_model
 from keras.layers import Conv1D, MaxPooling1D, LSTM, Dense, Dropout
 from keras.optimizers import Adam
 
+from keras.layers import BatchNormalization
+from keras.regularizers import l2
+
+
 def create1DConvLSTM():
     model = Sequential()
-    model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
     
     # 1D Convolutional Layer
-    model.add(Conv1D(48, kernel_size=3,activation='tanh'))
+    model.add(Conv1D(64, kernel_size=3, activation='relu', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
     model.add(MaxPooling1D(pool_size=2))
-
-    # Stacked LSTM layers
-    model.add(LSTM(32, return_sequences=True, activation='tanh'))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(32, return_sequences=True, activation='tanh'))
-    model.add(LSTM(32,activation='tanh'))
+    
+    # LSTM layers
+    model.add(LSTM(32, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True))
+    model.add(LSTM(32))  # You can add more LSTM layers if needed
     
     # Dense layers
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(16, activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(8, activation='sigmoid'))
     model.add(Dropout(0.5))
-    model.add(Dense(32, activation='relu'))
+    model.add(Dense(16, activation='relu'))
     
     # Output layer
     model.add(Dense(5, activation='softmax'))
@@ -286,13 +292,15 @@ def create1DConvLSTM():
     
     return model
 
+    
+
 def trainModel(model, directory):
     batch_size = 8
     epochs = 200
 
     # Define the callbacks
     cp = ModelCheckpoint(directory, save_best_only=True)
-    # early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=0.0001)
 
     model.compile(
@@ -306,7 +314,7 @@ def trainModel(model, directory):
         y_train_encoded,
         validation_data=(X_valid, y_valid_encoded),
         epochs=epochs,
-        callbacks=[cp, reduce_lr],  # Use both callbacks
+        callbacks=[cp, early_stop, reduce_lr],  # Use both callbacks
         batch_size=batch_size
     )
 
@@ -314,7 +322,7 @@ def trainModel(model, directory):
 
 # Create and train the model
 model = create1DConvLSTM()
-name = "1D_Conv_LSTM_v5_MoreEpochs"
+name = "1D_Conv_LSTM_v7_WithL2RegularizationAndV1"
 
 # Define the directory path
 directory = f'Graphs_{name}'
