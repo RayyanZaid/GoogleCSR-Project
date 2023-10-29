@@ -311,7 +311,7 @@ def trainModel(model, directory):
         X_train,
         y_train_encoded,
         validation_data=(X_valid, y_valid_encoded),
-        epochs=100,
+        epochs=200,
         callbacks=[cp, reduce_lr],
         batch_size=8
     )
@@ -323,7 +323,7 @@ def trainModel(model, directory):
 
 # Create and train the model
 model = create1DConvLSTM()
-name = "1D_Conv_LSTM_v7"
+name = "1D_Conv_LSTM_v8_MoreEpochs"
 
 # Define the directory path
 directory = f'Graphs_{name}'
