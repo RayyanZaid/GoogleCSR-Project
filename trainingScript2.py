@@ -273,9 +273,9 @@ def create1DConvLSTM():
     model.add(MaxPooling1D(pool_size=2))
     
     # LSTM layers
-    model.add(LSTM(32, return_sequences=True))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(32, return_sequences=True))
-    model.add(LSTM(32))  # You can add more LSTM layers if needed
+    model.add(LSTM(64, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(64, return_sequences=True))
+    model.add(LSTM(64))  # You can add more LSTM layers if needed
     
     # Dense layers
     model.add(Dense(16, activation='relu'))
@@ -292,37 +292,38 @@ def create1DConvLSTM():
     
     return model
 
-    
-
 def trainModel(model, directory):
-    batch_size = 8
-    epochs = 200
-
-    # Define the callbacks
     cp = ModelCheckpoint(directory, save_best_only=True)
-    early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=0.0001)
+    reduce_lr = ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.5,
+        patience=5,
+        min_lr=0.0001
+    )
 
     model.compile(
-        loss='categorical_crossentropy',
-        optimizer=Adam(learning_rate=0.00005),
-        metrics=['categorical_accuracy']
+        loss=CategoricalCrossentropy(),
+        optimizer=Adam(learning_rate=0.001),
+        metrics=[CategoricalAccuracy()]
     )
 
     history = model.fit(
         X_train,
         y_train_encoded,
         validation_data=(X_valid, y_valid_encoded),
-        epochs=epochs,
-        callbacks=[cp, early_stop, reduce_lr],  # Use both callbacks
-        batch_size=batch_size
+        epochs=100,
+        callbacks=[cp, reduce_lr],
+        batch_size=8
     )
 
+    with open('history.pkl', 'wb') as file:
+        pickle.dump(history, file)
+        
     return history
 
 # Create and train the model
 model = create1DConvLSTM()
-name = "1D_Conv_LSTM_v7_WithL2RegularizationAndV1"
+name = "1D_Conv_LSTM_v7"
 
 # Define the directory path
 directory = f'Graphs_{name}'
