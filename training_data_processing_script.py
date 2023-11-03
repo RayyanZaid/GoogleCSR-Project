@@ -98,7 +98,7 @@ def getTotalPointsScoredInAGame(jsonPath):
 @print_error_and_continue
 def getInputOutputData(datasetDirectoryVariable):
 
-    allScore = 0
+    # allScore = 0
     allPossessions : List[Possession] = []
     for eachJSON in datasetDirectoryVariable:
         json_path = os.path.join(destination_folder, eachJSON)
@@ -108,22 +108,22 @@ def getInputOutputData(datasetDirectoryVariable):
         possessions : List[Possession] = momentPreprocessing.getData(json_path)
         createTemporalWindows(possessions)
         allPossessions.extend(possessions)
-        score = getTotalPointsScoredInAGame(json_path)
-        allScore += score
+        # score = getTotalPointsScoredInAGame(json_path)
+        # allScore += score
 
 
 
     inputMatrix , outputVector = processDataForLSTM(possessions)
     
 
-    return inputMatrix, outputVector, len(allPossessions), allScore
+    return inputMatrix, outputVector
 
 if __name__ == "__main__":
 
     # Specify the range of games to train
-    startGameNumber = 541
+    startGameNumber = 550
     endGameNumber = 636
-    grouping_size = 5  # Number of games to process in each group
+    grouping_size = 1  # Number of games to process in each group
 
 
     totalScore = 0
@@ -139,16 +139,20 @@ if __name__ == "__main__":
 
         datasetDirectoryVariable = os.listdir(destination_folder)
 
+        if len(datasetDirectoryVariable) == 0:
+            print(f"Zip folder at game {i} is empty.")
+            continue
         # Get Input/Output Data
         print(f"Starting training on Games {currentStartGameNumber} to {currentEndGameNumber}")
-        inputMatrix, outputVector, numPossessions, score = getInputOutputData(datasetDirectoryVariable)
+        inputMatrix, outputVector = getInputOutputData(datasetDirectoryVariable)
 
         if len(inputMatrix) == 0:   # if JSON file is corrupted
+            print(f"Length of input matrix at game {i} is 0. JSON file corrupted")
             delete_files_in_folder(destination_folder)
             continue
 
-        totalScore += score
-        totalNumPossessions += numPossessions
+        # totalScore += score
+        # totalNumPossessions += numPossessions
 
         inputMatrix = np.array(inputMatrix)   # SHAPE: number of windows 1500, WINDOW_SIZE, MOMENT_SIZE
         outputVector = np.array(outputVector) # SHAPE: number of windows 1500, 1 
@@ -176,30 +180,30 @@ if __name__ == "__main__":
             
         }
 
-        with open(f'training_history_groups/{i}.pkl', 'wb') as file:
+        with open(f'training_history_groups_v2_Tis75/{i}.pkl', 'wb') as file:
             pickle.dump(training_data_for_pickle, file)
 
 
-        results_data.append(
-            {
-                "Range": (currentStartGameNumber, currentEndGameNumber),
-                "Score": totalScore,
-                "Number of Possessions": totalNumPossessions,
-            }
-        )
+        # results_data.append(
+        #     {
+        #         "Range": (currentStartGameNumber, currentEndGameNumber),
+        #         "Score": totalScore,
+        #         "Number of Possessions": totalNumPossessions,
+        #     }
+        # )
 
-        # Print results to the console
-        for result in results_data:
-            print(
-                f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})"
-            )
+        # # Print results to the console
+        # for result in results_data:
+        #     print(
+        #         f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})"
+        #     )
 
-        # Save results to a text file
-        with open(f"training_results{startGameNumber}.txt", "w") as txt_file:
-            for result in results_data:
-                txt_file.write(
-                    f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})\n"
-                )
+        # # Save results to a text file
+        # with open(f"training_results{startGameNumber}.txt", "w") as txt_file:
+        #     for result in results_data:
+        #         txt_file.write(
+        #             f"Range {result['Range']} : (Score: {result['Score']}), (Number of Possessions: {result['Number of Possessions']})\n"
+        #         )
         # Delete extracted JSON files for the current group
         delete_files_in_folder(destination_folder)
 

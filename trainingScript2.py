@@ -198,10 +198,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Define your data, X_train, y_train_encoded, X_valid, y_valid_encoded, X_test, y_test here
-pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
+# pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
+pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups_v2_Tis100'
 
 
-data = {     'X_train' : [],
+data = {     'X_train' : [[[]]],
             'X_test'  : [],
             'y_train_encoded' : [],
             'y_test'  : [],
@@ -217,17 +218,22 @@ for filename in os.listdir(pkl_directory):
         file_path = os.path.join(pkl_directory, filename)
         with open(file_path, 'rb') as file:
             training_data_for_pickle = pickle.load(file)
-            # Merge the data from each file into the combined_history dictionary
-            for key in data:
-                data[key].extend(training_data_for_pickle[key])
+            # Process and append data from the current file
+            np.append(data['X_train'], training_data_for_pickle['X_train'], axis=0)
+            np.append(data['y_train_encoded'], training_data_for_pickle['y_train_encoded'], axis=0)
+            np.append(data['X_valid'], training_data_for_pickle['X_valid'], axis=0)
+            np.append(data['y_valid_encoded'], training_data_for_pickle['y_valid_encoded'], axis=0)
+            np.append(data['X_test'], training_data_for_pickle['X_test'], axis=0)
+            np.append(data['y_test'], training_data_for_pickle['y_test'], axis=0)
 
 
-X_train = np.array(data['X_train'])
-y_train_encoded = np.array(data['y_train_encoded'])
-X_valid = np.array(data['X_valid'])
-y_valid_encoded = np.array(data['y_valid_encoded'])
-X_test = np.array(data['X_test'])
-y_test = np.array(data['y_test'])
+
+# X_train = np.array(data['X_train'])
+# y_train_encoded = np.array(data['y_train_encoded'])
+# X_valid = np.array(data['X_valid'])
+# y_valid_encoded = np.array(data['y_valid_encoded'])
+# X_test = np.array(data['X_test'])
+# y_test = np.array(data['y_test'])
 
 
 print("Done")
@@ -264,6 +270,30 @@ from keras.optimizers import Adam
 from keras.layers import BatchNormalization
 from keras.regularizers import l2
 
+from keras.models import Sequential
+from keras.layers import InputLayer, LSTM, Dense, Dropout, GRU
+
+def createGRU_LSTM() -> Sequential:
+    model = Sequential()
+    model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
+    
+    # GRU layer
+    model.add(GRU(64, return_sequences=True, activation='relu'))
+    
+    # LSTM layers
+    model.add(LSTM(32, return_sequences=True, activation='relu'))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True, activation='relu'))
+    model.add(LSTM(32, activation='tanh'))  # You can add more LSTM layers if needed
+    
+    # Dense layers
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.5))
+    # Output layer
+    model.add(Dense(5, activation='softmax'))
+    
+    model.summary()
+
+    return model
 
 def create1DConvLSTM():
     model = Sequential()
@@ -308,10 +338,10 @@ def trainModel(model, directory):
     )
 
     history = model.fit(
-        X_train,
-        y_train_encoded,
-        validation_data=(X_valid, y_valid_encoded),
-        epochs=150,
+        data['X_train'],
+        data['y_train_encoded'],
+        validation_data=(data['X_valid'], data['y_valid_encoded']),
+        epochs=50,
         callbacks=[cp, reduce_lr],
         batch_size=8
     )
@@ -323,7 +353,7 @@ def trainModel(model, directory):
 
 # Create and train the model
 model = create1DConvLSTM()
-name = "1D_Conv_LSTM_v9_LessEpochs"
+name = "1D_Conv_LSTM_v5"
 
 # Define the directory path
 directory = f'Graphs_{name}'
@@ -342,8 +372,8 @@ history = trainModel(model, name)
 
 plotLoss(history.history,name)
 plotAccuracy(history.history,name)
-plotLearningCurve(history.history,X_train,name)
-plotLabelFreqAndPercentErr(history.history,X_test,y_test,model,name)
+plotLearningCurve(history.history, data['X_train'],name)
+plotLabelFreqAndPercentErr(history.history,data['X_test'],data['y_test'],model,name)
 
 for eachLabel in mapping:
-    plot_reliability_curve(model,X_test,y_test,int(eachLabel), name)
+    plot_reliability_curve(model,data['X_test'],data['y_test'],int(eachLabel), name)

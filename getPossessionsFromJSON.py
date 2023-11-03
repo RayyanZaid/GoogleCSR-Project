@@ -210,6 +210,10 @@ class MomentPreprocessingClass:
 
         currentGameClock = 0
         previousGameClock = 730
+
+        currentQuarter = 1
+        prevQuarter = 1
+
         momentPreprocessingClass = MomentPreprocessingClass(json_path)
 
         afterTerminalAction = False
@@ -223,9 +227,17 @@ class MomentPreprocessingClass:
             moments = eachEvent["moments"]
 
             for eachMoment in moments:
+                # print(possessionCounter)
+                quarterFromMoment = eachMoment[0]
+                currentQuarter = quarterFromMoment
 
+                if currentQuarter != prevQuarter:
+                    previousGameClock = currentGameClock
+                    previousShotClock = currentShotClock
+                    prevQuarter = currentQuarter
+                    allPossessions.append(currentPossession)
+                    currentPossession = Possession()
                 
-
                 momentObject = Moment(eachMoment)
                 momentObject.whichSideIsOffensive()
                 momentObject.whichTeamHasPossession()
@@ -247,12 +259,25 @@ class MomentPreprocessingClass:
                 
                 currentShotClock = momentObject.shot_clock
                 currentGameClock = momentObject.game_clock
-
-                if currentGameClock > previousGameClock:
+                
+                if previousGameClock == None or previousShotClock == None:
+                    previousGameClock = currentGameClock
+                    previousShotClock = currentShotClock
+                    prevQuarter = currentQuarter
                     continue
+   
+                if currentGameClock > previousGameClock:
+                    previousShotClock = currentShotClock
+                    previousGameClock = currentGameClock
+                    prevQuarter = currentQuarter
+                    continue
+
                 
                 if(momentPreprocessingClass.lastGameClockNum == momentObject.game_clock or momentObject.game_clock == None or momentObject.shot_clock == None):
-                            continue
+                    previousShotClock = currentShotClock
+                    previousGameClock = currentGameClock
+                    prevQuarter = currentQuarter
+                    continue
                 else:
                     momentPreprocessingClass.lastGameClockNum = momentObject.game_clock
 
@@ -276,12 +301,13 @@ class MomentPreprocessingClass:
                         if len(momentObject.momentArray) == MOMENT_SIZE:
                             currentPossession.addMoment(momentObject)
 
-                        allPossessions.append(currentPossession)
-
+                        if len(currentPossession.moments) >= 75:
+                            allPossessions.append(currentPossession)
+                            possessionCounter+=1
         
 
                         currentPossession = Possession()
-                        possessionCounter+=1
+                            
                     
 
                     if len(momentObject.momentArray) == MOMENT_SIZE:
@@ -289,6 +315,7 @@ class MomentPreprocessingClass:
                         
                     previousShotClock = currentShotClock
                     previousGameClock = currentGameClock
+                    prevQuarter = currentQuarter
                         
                     rowNumber += 1
                     continue
@@ -297,9 +324,9 @@ class MomentPreprocessingClass:
                 if currentShotClock > previousShotClock:
                     
 
-                    allPossessions.append(currentPossession)
-                    currentPossession = Possession()
-                    possessionCounter+=1
+                    if len(currentPossession.moments) >= 75:
+                        allPossessions.append(currentPossession)
+                        possessionCounter+=1
                     
 
                 if isTerminalAction:
@@ -308,11 +335,15 @@ class MomentPreprocessingClass:
                         if len(momentObject.momentArray) == MOMENT_SIZE:
                             currentPossession.addMoment(momentObject)
                         currentPossession.terminalActionIndex = len(currentPossession.moments) - 1
+                        previousShotClock = currentShotClock
+                        previousGameClock = currentGameClock
+                        prevQuarter = currentQuarter
                         continue
 
                 if currentShotClock == previousShotClock:
                     previousShotClock = currentShotClock
                     previousGameClock = currentGameClock
+                    prevQuarter = currentQuarter
                     rowNumber += 1
                     continue
 
@@ -324,6 +355,7 @@ class MomentPreprocessingClass:
                 rowNumber += 1
                 previousShotClock = currentShotClock
                 previousGameClock = currentGameClock
+                prevQuarter = currentQuarter
 
         return allPossessions
 
