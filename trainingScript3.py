@@ -198,7 +198,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Define your data, X_train, y_train_encoded, X_valid, y_valid_encoded, X_test, y_test here
-pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
+# pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
+pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups_v2_Tis100'
 
 
 data = {     'X_train' : [],
@@ -212,22 +213,26 @@ data = {     'X_train' : [],
 
 
 
-for filename in os.listdir(pkl_directory):
-    if filename.endswith('.pkl'):
-        file_path = os.path.join(pkl_directory, filename)
-        with open(file_path, 'rb') as file:
-            training_data_for_pickle = pickle.load(file)
-            # Merge the data from each file into the combined_history dictionary
-            for key in data:
-                data[key].extend(training_data_for_pickle[key])
+# for filename in os.listdir(pkl_directory):
+#     if filename.endswith('.pkl'):
+#         file_path = os.path.join(pkl_directory, filename)
+#         with open(file_path, 'rb') as file:
+#             training_data_for_pickle = pickle.load(file)
+#             # Process and append data from the current file
+#             data['X_train'] = training_data_for_pickle['X_train']
+#             data['y_train_encoded'] = training_data_for_pickle['y_train_encoded']
+#             data['X_valid'] = training_data_for_pickle['X_valid']
+#             data['y_valid_encoded'] = training_data_for_pickle['y_valid_encoded']
+#             data['X_test'] = training_data_for_pickle['X_test']
+            
 
 
-X_train = np.array(data['X_train'])
-y_train_encoded = np.array(data['y_train_encoded'])
-X_valid = np.array(data['X_valid'])
-y_valid_encoded = np.array(data['y_valid_encoded'])
-X_test = np.array(data['X_test'])
-y_test = np.array(data['y_test'])
+# X_train = np.array(data['X_train'])
+# y_train_encoded = np.array(data['y_train_encoded'])
+# X_valid = np.array(data['X_valid'])
+# y_valid_encoded = np.array(data['y_valid_encoded'])
+# X_test = np.array(data['X_test'])
+# y_test = np.array(data['y_test'])
 
 
 print("Done")
@@ -238,33 +243,6 @@ def createStackedLSTM() -> Sequential:
     model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
     
     # Stacked LSTM layers
-    model.add(LSTM(32, return_sequences=True, activation='tanh'))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(32, return_sequences=True, activation='tanh'))
-    model.add(LSTM(32,activation='tanh')) 
-    
-    # Dense layers
-    model.add(Dense(128, activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    
-    # Output layer
-    model.add(Dense(5, activation='softmax'))
-    
-    model.summary()
-    
-    return model
-
-from keras.models import Sequential, load_model
-from keras.layers import Conv1D, MaxPooling1D, LSTM, Dense, Dropout
-from keras.optimizers import Adam
-
-def create1DConvLSTM():
-    model = Sequential()
-    
-    # 1D Convolutional Layer
-    model.add(Conv1D(64, kernel_size=3, activation='tanh', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
-    model.add(MaxPooling1D(pool_size=2))
-    
-    # LSTM layers
     model.add(LSTM(64, return_sequences=True, activation='relu'))  # return_sequences=True for stacked LSTM
     model.add(LSTM(64, return_sequences=True, activation='relu'))
     model.add(LSTM(64,activation='tanh'))  # You can add more LSTM layers if needed
@@ -280,38 +258,127 @@ def create1DConvLSTM():
     model.add(Dense(5, activation='softmax'))
     
     model.summary()
+
+    return model
+
+
+from keras.models import Sequential, load_model
+from keras.layers import Conv1D, MaxPooling1D, LSTM, Dense, Dropout
+from keras.optimizers import Adam
+
+from keras.layers import BatchNormalization
+from keras.regularizers import l2
+
+from keras.models import Sequential
+from keras.layers import InputLayer, LSTM, Dense, Dropout, GRU
+
+def createGRU_LSTM() -> Sequential:
+    model = Sequential()
+    model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
+    
+    # GRU layer
+    model.add(GRU(64, return_sequences=True, activation='relu'))
+    
+    # LSTM layers
+    model.add(LSTM(32, return_sequences=True, activation='relu'))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True, activation='relu'))
+    model.add(LSTM(32, activation='tanh'))  # You can add more LSTM layers if needed
+    
+    # Dense layers
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.5))
+    # Output layer
+    model.add(Dense(5, activation='softmax'))
+    
+    model.summary()
+
+    return model
+
+def create1DConvLSTM():
+    model = Sequential()
+    
+    # 1D Convolutional Layer
+    model.add(Conv1D(64, kernel_size=3, activation='relu', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
+    model.add(MaxPooling1D(pool_size=2))
+    
+    # LSTM layers
+    model.add(LSTM(64, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(64, return_sequences=True))
+    model.add(LSTM(64))  # You can add more LSTM layers if needed
+    
+    # Dense layers
+    model.add(Dense(16, activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(8, activation='sigmoid'))
+    model.add(Dropout(0.5))
+    model.add(Dense(16, activation='relu'))
+    
+    # Output layer
+    model.add(Dense(5, activation='softmax'))
+    
+    model.summary()
     
     return model
 
 def trainModel(model, directory):
-    batch_size = 8
-    epochs = 100
-
-    # Define the callbacks
     cp = ModelCheckpoint(directory, save_best_only=True)
-    # early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=0.0001)
+    reduce_lr = ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.5,
+        patience=5,
+        min_lr=0.0001
+    )
 
     model.compile(
-        loss='categorical_crossentropy',
+        loss=CategoricalCrossentropy(),
         optimizer=Adam(learning_rate=0.001),
-        metrics=['categorical_accuracy']
+        metrics=[CategoricalAccuracy()]
     )
 
-    history = model.fit(
-        X_train,
-        y_train_encoded,
-        validation_data=(X_valid, y_valid_encoded),
-        epochs=epochs,
-        callbacks=[cp, reduce_lr],  # Use both callbacks
-        batch_size=batch_size
-    )
+    training_metrics = {'loss': [], 'categorical_accuracy': []}
+    validation_metrics = {'val_loss': [], 'val_categorical_accuracy': []}
 
-    return history
+    for epoch in range(50):  # 50 epochs
+        print(f"Epoch {epoch + 1}:")
+        for filename in os.listdir(pkl_directory):
+            if filename.endswith('.pkl'):
+                file_path = os.path.join(pkl_directory, filename)
+                with open(file_path, 'rb') as file:
+                    training_data_for_pickle = pickle.load(file)
+                    # Process and append data from the current file
+                    data['X_train'] = np.array(training_data_for_pickle['X_train'])
+                    data['y_train_encoded'] = np.array(training_data_for_pickle['y_train_encoded'])
+                    data['X_valid'] = np.array(training_data_for_pickle['X_valid'])
+                    data['y_valid_encoded'] = np.array(training_data_for_pickle['y_valid_encoded'])
+                    data['X_test'] = np.array(training_data_for_pickle['X_test'])
+
+                    
+
+        # Store metrics for this epoch
+        training_metrics['loss'].append(history[0])
+        training_metrics['categorical_accuracy'].append(history[1])
+
+        # Perform validation at the end of each epoch
+        val_loss, val_categorical_accuracy = model.evaluate(data['X_valid'], data['y_valid_encoded'])
+        validation_metrics['val_loss'].append(val_loss)
+        validation_metrics['val_categorical_accuracy'].append(val_categorical_accuracy)
+
+        print(f"  Validation Loss: {val_loss}")
+        print(f"  Validation Accuracy: {val_categorical_accuracy}")
+
+        # Apply callbacks
+        cp.on_epoch_end(epoch, logs={'val_loss': val_loss})  # Manually trigger the callback
+
+    with open('history.pkl', 'wb') as file:
+        pickle.dump({'training': training_metrics, 'validation': validation_metrics}, file)
+
+    return {'training': training_metrics, 'validation': validation_metrics}
+
 
 # Create and train the model
-model = createStackedLSTM()
-name = "Stacked_LSTM_v4_DeepHoops"
+model = create1DConvLSTM()
+name = "1D_Conv_LSTM_v5"
 
 # Define the directory path
 directory = f'Graphs_{name}'
@@ -330,8 +397,8 @@ history = trainModel(model, name)
 
 plotLoss(history.history,name)
 plotAccuracy(history.history,name)
-plotLearningCurve(history.history,X_train,name)
-plotLabelFreqAndPercentErr(history.history,X_test,y_test,model,name)
+plotLearningCurve(history.history, data['X_train'],name)
+plotLabelFreqAndPercentErr(history.history,data['X_test'],data['y_test'],model,name)
 
 for eachLabel in mapping:
-    plot_reliability_curve(model,X_test,y_test,int(eachLabel), name)
+    plot_reliability_curve(model,data['X_test'],data['y_test'],int(eachLabel), name)

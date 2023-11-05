@@ -202,29 +202,18 @@ import matplotlib.pyplot as plt
 pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups_v2_Tis100'
 
 
-data = {     'X_train' : [[[]]],
-            'X_test'  : [],
-            'y_train_encoded' : [],
-            'y_test'  : [],
-            'X_valid' : [],
-            'y_valid_encoded' : []}
+import os
+import pickle
+import numpy as np
 
-# Iteration through pkl files in the directory
+# Convert the lists in the data dictionary to NumPy arrays
+# data['X_train'] = np.array(data['X_train'])
+# data['y_train_encoded'] = np.array(data['y_train_encoded'])
+# data['X_valid'] = np.array(data['X_valid'])
+# data['y_valid_encoded'] = np.array(data['y_valid_encoded'])
+# data['X_test'] = np.array(data['X_test'])
 
 
-
-for filename in os.listdir(pkl_directory):
-    if filename.endswith('.pkl'):
-        file_path = os.path.join(pkl_directory, filename)
-        with open(file_path, 'rb') as file:
-            training_data_for_pickle = pickle.load(file)
-            # Process and append data from the current file
-            np.append(data['X_train'], training_data_for_pickle['X_train'], axis=0)
-            np.append(data['y_train_encoded'], training_data_for_pickle['y_train_encoded'], axis=0)
-            np.append(data['X_valid'], training_data_for_pickle['X_valid'], axis=0)
-            np.append(data['y_valid_encoded'], training_data_for_pickle['y_valid_encoded'], axis=0)
-            np.append(data['X_test'], training_data_for_pickle['X_test'], axis=0)
-            np.append(data['y_test'], training_data_for_pickle['y_test'], axis=0)
 
 
 
@@ -236,7 +225,6 @@ for filename in os.listdir(pkl_directory):
 # y_test = np.array(data['y_test'])
 
 
-print("Done")
 
 @print_error_and_continue
 def createStackedLSTM() -> Sequential:
@@ -303,9 +291,9 @@ def create1DConvLSTM():
     model.add(MaxPooling1D(pool_size=2))
     
     # LSTM layers
-    model.add(LSTM(64, return_sequences=True))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(64, return_sequences=True))
-    model.add(LSTM(64))  # You can add more LSTM layers if needed
+    model.add(LSTM(32, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True))
+    model.add(LSTM(32))  # You can add more LSTM layers if needed
     
     # Dense layers
     model.add(Dense(16, activation='relu'))
@@ -322,6 +310,77 @@ def create1DConvLSTM():
     
     return model
 
+
+
+import os
+import pickle
+import numpy as np
+import os
+import pickle
+import numpy as np
+
+# Define the expected dimensions
+expected_shape = (100, 24)
+expected_y_shape = (5,)
+
+
+# Initialize empty numpy arrays
+X_train = np.empty((0, *expected_shape))
+y_train_encoded = np.empty((0, *expected_y_shape))
+X_valid = np.empty((0, *expected_shape))
+y_valid_encoded = np.empty((0, *expected_y_shape))
+X_test = np.empty((0, *expected_shape))
+y_test = []
+
+# Iteration through pkl files in the directory
+
+
+startFile = 0
+endFile = 50
+file_count = 0
+
+for filename in os.listdir(pkl_directory):
+    if filename.endswith('.pkl'):
+        # Check if the current file is within the desired range
+        if file_count < startFile:
+            file_count += 1
+            continue
+        elif file_count >= endFile:
+            break
+        
+        file_path = os.path.join(pkl_directory, filename)
+        with open(file_path, 'rb') as file:
+            training_data_for_pickle = pickle.load(file)
+
+            # Extend the corresponding arrays with data from pickle files
+            X_train = np.concatenate((X_train, training_data_for_pickle['X_train']), axis=0)
+            y_train_encoded = np.concatenate((y_train_encoded, training_data_for_pickle['y_train_encoded']), axis=0)
+            X_valid = np.concatenate((X_valid, training_data_for_pickle['X_valid']), axis=0)
+            y_valid_encoded = np.concatenate((y_valid_encoded, training_data_for_pickle['y_valid_encoded']), axis=0)
+            X_test = np.concatenate((X_test, training_data_for_pickle['X_test']), axis=0)
+            y_test.append(training_data_for_pickle['y_test'])
+
+
+        file_count += 1
+
+            
+        
+
+# Check the final dimensions
+# if X_train.shape != (num_files, *expected_shape):
+#     raise ValueError(f"Final X_train shape is unexpected: {X_train.shape}")
+# if X_valid.shape != (num_files, *expected_shape):
+#     raise ValueError(f"Final X_valid shape is unexpected: {X_valid.shape}")
+# if X_test.shape != (num_files, *expected_shape):
+#     raise ValueError(f"Final X_test shape is unexpected: {X_test.shape}")
+
+
+
+
+
+
+print("Done")
+
 def trainModel(model, directory):
     cp = ModelCheckpoint(directory, save_best_only=True)
     reduce_lr = ReduceLROnPlateau(
@@ -333,22 +392,26 @@ def trainModel(model, directory):
 
     model.compile(
         loss=CategoricalCrossentropy(),
-        optimizer=Adam(learning_rate=0.001),
+        optimizer=Adam(learning_rate=0.0001),
         metrics=[CategoricalAccuracy()]
     )
 
     history = model.fit(
-        data['X_train'],
-        data['y_train_encoded'],
-        validation_data=(data['X_valid'], data['y_valid_encoded']),
-        epochs=50,
+        X_train,
+        y_train_encoded,
+        validation_data=(X_valid, y_valid_encoded),
+        epochs=10,
         callbacks=[cp, reduce_lr],
-        batch_size=8
+        batch_size=32
     )
 
-    with open('history.pkl', 'wb') as file:
+    
+
+    with open(f'{directory}_history.pkl', 'wb') as file:
         pickle.dump(history, file)
-        
+    
+    model.save(os.path.join(directory, f'{directory}_savedModel.h5'))
+
     return history
 
 # Create and train the model
@@ -372,8 +435,8 @@ history = trainModel(model, name)
 
 plotLoss(history.history,name)
 plotAccuracy(history.history,name)
-plotLearningCurve(history.history, data['X_train'],name)
-plotLabelFreqAndPercentErr(history.history,data['X_test'],data['y_test'],model,name)
+plotLearningCurve(history.history, X_train,name)
+plotLabelFreqAndPercentErr(history.history,X_test,y_test,model,name)
 
-for eachLabel in mapping:
-    plot_reliability_curve(model,data['X_test'],data['y_test'],int(eachLabel), name)
+# for eachLabel in mapping:
+#     plot_reliability_curve(model,X_test,y_test,int(eachLabel), name)
