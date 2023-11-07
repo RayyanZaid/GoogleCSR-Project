@@ -223,9 +223,9 @@ for filename in os.listdir(pkl_directory):
 
 print(f"Done loading games {startFile} to {endFile}")
 
-name = "1D_Conv_LSTM_v5"
+name = "1D_Conv_LSTM_v7"
 
-modelHistoryPklDirectory = "1D_Conv_LSTM_v5_histories"
+modelHistoryPklDirectory = "1D_Conv_LSTM_v7_histories"
 
 
 from keras.callbacks import History
@@ -250,6 +250,14 @@ for filename in os.listdir(modelHistoryPklDirectory):
 from keras.models import load_model
 
 model = load_model(name)
+
+
+# Define the directory path
+directory = f'Graphs_{name}'
+
+# Check if the directory exists, and if not, create it
+if not os.path.exists(directory):
+    os.makedirs(directory)
 
 plotLoss(combined_history.history,name)
 plotAccuracy(combined_history.history,name)

@@ -13,7 +13,7 @@ from globals import WINDOW_SIZE, MOMENT_SIZE
 
 from keras.models import load_model
 
-model1 = load_model(r"1D_Conv_LSTM_v5")
+model1 = load_model(r"1D_Conv_LSTM_v7")
 
 mapping = {
     0.0: "null",
