@@ -223,7 +223,7 @@ for filename in os.listdir(pkl_directory):
 
 print(f"Done loading games {startFile} to {endFile}")
 
-name = "1D_Conv_LSTM_v7"
+name = "1D_Conv_LSTM_v8"
 
 modelHistoryPklDirectory = "1D_Conv_LSTM_v7_histories"
 

@@ -223,7 +223,7 @@ def trainModel(model, name):
 
     model.compile(
         loss='categorical_crossentropy',
-        optimizer=Adam(learning_rate=0.0001),
+        optimizer=Adam(learning_rate=0.00008),
         metrics=[
             'categorical_accuracy',  # Training accuracy
         
@@ -234,7 +234,7 @@ def trainModel(model, name):
         X_train,
         y_train_encoded,
         validation_data=(X_valid, y_valid_encoded),
-        epochs=20,
+        epochs=50,
         callbacks=[cp, reduce_lr, early_stopping],  # Add early_stopping callback
         batch_size=32
     )
@@ -261,7 +261,7 @@ def trainModel(model, name):
 # Create and train the model
 
 
-name = "1D_Conv_LSTM_v7"
+name = "1D_Conv_LSTM_v8"
 if not os.path.exists(name):
     model = create1DConvLSTM()
 else:
