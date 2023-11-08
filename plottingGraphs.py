@@ -165,8 +165,12 @@ def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins
 
     # Convert multi-class labels to binary labels for the specific class
     pos_label = class_index  # Use the class index as the positive label
-    y_true_binary = (y_test[0] == pos_label).astype(int)
 
+    y_true_binary = []
+
+    for game in y_test:
+        y_true_binary.extend((game == pos_label).astype(int))
+    
     # Create the reliability curve
     prob_true, prob_pred = calibration_curve(y_true_binary, y_prob, n_bins=n_bins)
 
@@ -184,7 +188,7 @@ def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins
 
 
 startFile = 1
-endFile = 2
+endFile = 100
 file_count = 0
 expected_shape = (100, 24)
 expected_y_shape = (5,)
@@ -259,10 +263,16 @@ directory = f'Graphs_{name}'
 if not os.path.exists(directory):
     os.makedirs(directory)
 
-plotLoss(combined_history.history,name)
-plotAccuracy(combined_history.history,name)
-plotLearningCurve(combined_history.history, X_train,name)
+# plotLoss(combined_history.history,name)
+# plotAccuracy(combined_history.history,name)
+# plotLearningCurve(combined_history.history, X_train,name)
 plotLabelFreqAndPercentErr(combined_history.history,X_test,y_test,model,name)
 
-for eachLabel in mapping:
-    plot_reliability_curve(model,X_test,y_test,int(eachLabel), name)
+for class_index in mapping:
+    y_true_binary = []
+
+    for game in y_test:
+        y_true_binary.extend((game == class_index).astype(int))
+
+    # Create and plot the reliability curve for the current class_index
+    plot_reliability_curve(model, X_test, y_test, int(class_index), name)
