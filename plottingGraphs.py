@@ -78,10 +78,10 @@ def plotLearningCurve(history,X_train,modelName):
 
 
 mapping = {
-    0.0: "null",
-    1.0: "FG Try",
-    2.0: "Shoot F.",
-    3.0: "Nonshoot F.",
+    0.0: "Null",
+    1.0: "FG Attempt",
+    2.0: "Shooting Foul",
+    3.0: "Non-Shooting Foul",
     4.0: "Turnover"
 }
 
@@ -140,7 +140,12 @@ def plot_percent_error(label_counts_actual, label_counts_predicted, modelName):
 @print_error_and_continue
 def plotLabelFreqAndPercentErr(history, X_test, y_test, model, modelName):
     y_pred = model.predict(X_test)
-    actual_time_series = y_test
+
+    y_test_formatted = []
+
+    for eachGame in y_test:
+        y_test_formatted.extend(eachGame)
+    actual_time_series = y_test_formatted
     predicted_time_series = y_pred
 
     actual_time_series = np.array(actual_time_series)
@@ -157,6 +162,9 @@ def plotLabelFreqAndPercentErr(history, X_test, y_test, model, modelName):
 import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
 
+from sklearn.calibration import calibration_curve
+
+import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
 
 def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins=10):
@@ -176,14 +184,16 @@ def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins
 
     # Plot the reliability curve
     plt.figure(figsize=(8, 6))
-    plt.plot(prob_pred, prob_true, marker='o', linestyle='--', color='blue')
-    plt.plot([0, 1], [0, 1], linestyle='--', color='red')
+    plt.plot(prob_pred, prob_true, marker='o', linestyle='--', color='blue', label='Our Architecture')
+    plt.plot([0, 1], [0, 1], linestyle='--', color='red', label='Perfect Calibration')
     plt.xlabel('Mean Predicted Probability')
-    plt.ylabel('Fraction of Positives')
-    plt.title('Reliability Curve')
+    plt.ylabel('Actual Fraction of Occurrences')
+    plt.title(f'Reliability Curve for {mapping[class_index]}')
     plt.grid()
+    plt.legend(loc='lower right')  # Add a legend to the plot
     plt.savefig(f'Graphs_{modelName}/reliability_curve{mapping[class_index]}.png')
     plt.show()
+
 
 
 
