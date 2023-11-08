@@ -173,6 +173,7 @@ class Event:
 
     def show(self):
         fig, (ax1, ax2,ax3) = plt.subplots(3, 1, figsize=(8, 10), gridspec_kw={'height_ratios': [2, 1, 2]})
+        plt.subplots_adjust(hspace=0.3)
         court = plt.imread(r"court.png")
         ax1.imshow(court, zorder=0, extent=[Constant.X_MIN, Constant.X_MAX - Constant.DIFF,
                                             Constant.Y_MAX, Constant.Y_MIN])
@@ -183,7 +184,7 @@ class Event:
         ax2.set_ylim(0.0, 1.0)
         ax2.grid(True, axis='y')
         ax2.set_aspect('equal')
-        ax2.set_xlabel('Event Type')
+        # ax2.set_xlabel('Event Type')
         ax2.set_ylabel('Probability')
         ax2.set_title('Predicted Probabilities from LSTM')
 
@@ -217,8 +218,9 @@ class Event:
         ax3.set_xlabel('Time')
         ax3.set_ylabel('Expected points')
         ax3.set_title('Predicted Points during a Possession')
-
-        expected_points_text = ax3.annotate('', xy=(0.8, 1), color='black', fontsize=12, ha='center')
+        
+        # expected_points_text = ax3.annotate('', xy=(0.8, 1), color='black', fontsize=12, ha='center')
+        expected_points_text = fig.text(0.5, 0.05, "", ha='center', fontsize=12, color='black')
         # Animation
         anim = animation.FuncAnimation(
     fig, self.update_both,

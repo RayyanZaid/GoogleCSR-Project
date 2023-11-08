@@ -121,11 +121,16 @@ def getInputOutputData(datasetDirectoryVariable):
 if __name__ == "__main__":
 
     # Specify the range of games to train
-    startGameNumber = 1
+    startGameNumber = 13
     endGameNumber = 636
     grouping_size = 1  # Number of games to process in each group
-    
+
     results_data = []
+
+    directoryNamePkl = "training_history_groups_v2_Tis128"
+
+    if not os.path.exists(directoryNamePkl):
+        os.makedirs(directoryNamePkl)
 
     for i in range(startGameNumber, endGameNumber + 1, grouping_size):
         currentStartGameNumber = i

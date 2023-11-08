@@ -188,7 +188,7 @@ def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins
 
 
 startFile = 1
-endFile = 100
+endFile = 618
 file_count = 0
 expected_shape = (100, 24)
 expected_y_shape = (5,)
@@ -215,10 +215,10 @@ for filename in os.listdir(pkl_directory):
             training_data_for_pickle = pickle.load(file)
 
             # Extend the corresponding arrays with data from pickle files
-            X_train = np.concatenate((X_train, training_data_for_pickle['X_train']), axis=0)
-            y_train_encoded = np.concatenate((y_train_encoded, training_data_for_pickle['y_train_encoded']), axis=0)
-            X_valid = np.concatenate((X_valid, training_data_for_pickle['X_valid']), axis=0)
-            y_valid_encoded = np.concatenate((y_valid_encoded, training_data_for_pickle['y_valid_encoded']), axis=0)
+            # X_train = np.concatenate((X_train, training_data_for_pickle['X_train']), axis=0)
+            # y_train_encoded = np.concatenate((y_train_encoded, training_data_for_pickle['y_train_encoded']), axis=0)
+            # X_valid = np.concatenate((X_valid, training_data_for_pickle['X_valid']), axis=0)
+            # y_valid_encoded = np.concatenate((y_valid_encoded, training_data_for_pickle['y_valid_encoded']), axis=0)
             X_test = np.concatenate((X_test, training_data_for_pickle['X_test']), axis=0)
             y_test.append(training_data_for_pickle['y_test'])
 
@@ -229,7 +229,7 @@ print(f"Done loading games {startFile} to {endFile}")
 
 name = "1D_Conv_LSTM_v8"
 
-modelHistoryPklDirectory = "1D_Conv_LSTM_v8_histories"
+modelHistoryPklDirectory = f"{name}_histories"
 
 
 from keras.callbacks import History
@@ -269,10 +269,6 @@ if not os.path.exists(directory):
 plotLabelFreqAndPercentErr(combined_history.history,X_test,y_test,model,name)
 
 for class_index in mapping:
-    y_true_binary = []
-
-    for game in y_test:
-        y_true_binary.extend((game == class_index).astype(int))
 
     # Create and plot the reliability curve for the current class_index
     plot_reliability_curve(model, X_test, y_test, int(class_index), name)

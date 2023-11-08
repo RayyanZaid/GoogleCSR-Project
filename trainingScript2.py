@@ -119,7 +119,7 @@ def create1DConvLSTM():
     
     # LSTM layers
     model.add(LSTM(32, return_sequences=True))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(32))  # You can add more LSTM layers if needed
+    model.add(LSTM(32)) 
     
     # Dense layers
     model.add(Dense(100, activation='relu'))
