@@ -121,13 +121,10 @@ def getInputOutputData(datasetDirectoryVariable):
 if __name__ == "__main__":
 
     # Specify the range of games to train
-    startGameNumber = 550
+    startGameNumber = 1
     endGameNumber = 636
     grouping_size = 1  # Number of games to process in each group
-
-
-    totalScore = 0
-    totalNumPossessions = 0
+    
     results_data = []
 
     for i in range(startGameNumber, endGameNumber + 1, grouping_size):
@@ -180,7 +177,7 @@ if __name__ == "__main__":
             
         }
 
-        with open(f'training_history_groups_v2_Tis75/{i}.pkl', 'wb') as file:
+        with open(f'training_history_groups_v2_Tis128/{i}.pkl', 'wb') as file:
             pickle.dump(training_data_for_pickle, file)
 
 

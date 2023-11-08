@@ -63,17 +63,13 @@ def createStackedLSTM() -> Sequential:
     model.add(InputLayer((WINDOW_SIZE, MOMENT_SIZE)))
     
     # Stacked LSTM layers
-    model.add(LSTM(64, return_sequences=True, activation='relu'))  # return_sequences=True for stacked LSTM
-    model.add(LSTM(64, return_sequences=True, activation='relu'))
-    model.add(LSTM(64,activation='tanh'))  # You can add more LSTM layers if needed
+    model.add(LSTM(32, return_sequences=True))  # return_sequences=True for stacked LSTM
+    model.add(LSTM(32, return_sequences=True))
+    model.add(LSTM(32,activation='tanh'))  # You can add more LSTM layers if needed
     
     # Dense layers
-    model.add(Dense(75, activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    # model.add(Dense(16, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(8, activation='relu'))
-    
+    model.add(Dense(128, activation='relu'))
+
     # Output layer
     model.add(Dense(5, activation='softmax'))
     
