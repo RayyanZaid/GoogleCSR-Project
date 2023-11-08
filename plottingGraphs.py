@@ -225,7 +225,7 @@ print(f"Done loading games {startFile} to {endFile}")
 
 name = "1D_Conv_LSTM_v8"
 
-modelHistoryPklDirectory = "1D_Conv_LSTM_v7_histories"
+modelHistoryPklDirectory = "1D_Conv_LSTM_v8_histories"
 
 
 from keras.callbacks import History
