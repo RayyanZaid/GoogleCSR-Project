@@ -16,7 +16,7 @@ import json
 
 
 if sys.gettrace() is not None:  # Check if debugger is active
-    args = argparse.Namespace(path=r"0021500504.json" , event = 6)  # Provide default values for debugging
+    args = argparse.Namespace(path=r"0021500504.json" , event = 6, model = "1D_Conv_LSTM_v8")  # Provide default values for debugging
 else:
     parser = argparse.ArgumentParser(description='Process arguments about an NBA game.')
     parser.add_argument('--path', type=str,
@@ -27,9 +27,13 @@ else:
                                 (the indexing start with zero, if you index goes beyond out
                                 the total number of events (plays), it will show you the last
                                 one of the game)""")
+    
+    parser.add_argument('--model', type=str, default=0,
+                        help="""the name of the model you want to test""")
+    
     args = parser.parse_args()
 
-game = Game(path_to_json=args.path, event_index=args.event)
+game = Game(path_to_json=args.path, event_index=args.event, modelName = args.model)
 game.read_json()
 
 game.start()

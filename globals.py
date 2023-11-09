@@ -1,4 +1,4 @@
-WINDOW_SIZE : int = 100
+WINDOW_SIZE : int = 128
 MOMENT_SIZE : int = 24
 
 

@@ -13,7 +13,7 @@ from globals import WINDOW_SIZE, MOMENT_SIZE
 
 from keras.models import load_model
 
-model1 = load_model(r"1D_Conv_LSTM_v8")
+
 
 mapping = {
     0.0: "null",
@@ -45,24 +45,10 @@ def convertMomentstoModelInput(listOfMoments: List[List[float]], currentMomentAr
     np_list = np.array(listOfMoments)
     return listOfMoments
 
-# only works if the length of the list of moments is equal to WINDOW_SIZE
-def predict(listOfMoments: List[List[float]]):
-    predictions = []
 
-    # Check if the input data has the correct shape
-    if len(listOfMoments) == WINDOW_SIZE:
-        # Convert the list of moments to a numpy array and add a batch dimension
-
-        # Predict with the model
-        predictions = model1.predict([listOfMoments])
-        predictions = predictions[0]
-    else:
-        predictions = [0.0, 0.0, 0.0, 0.0, 0.0]
-
-    return predictions
 
 class Event:
-    def __init__(self, event):
+    def __init__(self, event, modelName):
         self.event = event
         moments = event['moments']
         self.moments = [Moment(moment) for moment in moments]
@@ -90,9 +76,26 @@ class Event:
         self.expectedPointsList = []  # Initialize an empty list to store expected points
         self.xValues = []
         
-
+        self.model = load_model(modelName)
         
+    # only works if the length of the list of moments is equal to WINDOW_SIZE
+    def predict(self,listOfMoments: List[List[float]]):
+        predictions = []
 
+        # Check if the input data has the correct shape
+        if len(listOfMoments) == WINDOW_SIZE:
+            # Convert the list of moments to a numpy array and add a batch dimension
+
+            # Predict with the model
+            predictions = self.model.predict([listOfMoments])
+            predictions = predictions[0]
+        else:
+            predictions = [0.0, 0.0, 0.0, 0.0, 0.0]
+
+        return predictions
+    
+
+    
     def update_both(self, i, player_circles, ball_circle, annotations, clock_info, bar_plot, expectedPointsText,line_plot: Line2D,ax3):
         momentObject: Moment = self.moments[i]
         if i == self.prev_i:
@@ -130,7 +133,7 @@ class Event:
         ball_circle.radius = moment.ball.radius / Constant.NORMALIZATION_COEF
 
         # Update the bar graph
-        predictions = predict(self.listOfMoments)
+        predictions = self.predict(self.listOfMoments)
 
 
         expectedPoints = calculateExpectedPoints(predictions[0], predictions[1], predictions[2], predictions[3], predictions[4])

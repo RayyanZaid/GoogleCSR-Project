@@ -6,13 +6,14 @@ from Constant import Constant
 
 class Game:
     """A class for keeping info about the games"""
-    def __init__(self, path_to_json, event_index):
+    def __init__(self, path_to_json, event_index, modelName):
         # self.events = None
         self.home_team = None
         self.guest_team = None
         self.event = None
         self.path_to_json = path_to_json
         self.event_index = event_index
+        self.modelName = modelName
 
     def read_json(self):
         data_frame = pd.read_json(self.path_to_json)
@@ -22,7 +23,7 @@ class Game:
 
         print(Constant.MESSAGE + str(last_default_index))
         event = data_frame['events'][index]
-        self.event = Event(event)
+        self.event = Event(event,modelName=self.modelName)
         self.home_team = Team(event['home']['teamid'])
         self.guest_team = Team(event['visitor']['teamid'])
 
