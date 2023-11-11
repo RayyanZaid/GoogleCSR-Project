@@ -40,7 +40,7 @@ def plotAccuracy(history,modelName):
     plt.show()
 
 @print_error_and_continue
-def plotLearningCurve(history,X_train,modelName):
+def plotLearningCurve(history,modelName):
     train_loss = []  # To store training loss
     val_loss = []    # To store validation loss
     train_acc = []   # To store training accuracy
@@ -203,10 +203,10 @@ file_count = 0
 expected_shape = (100, 24)
 expected_y_shape = (5,)
 
-X_train = np.empty((0, *expected_shape))
-y_train_encoded = np.empty((0, *expected_y_shape))
-X_valid = np.empty((0, *expected_shape))
-y_valid_encoded = np.empty((0, *expected_y_shape))
+# X_train = np.empty((0, *expected_shape))
+# y_train_encoded = np.empty((0, *expected_y_shape))
+# X_valid = np.empty((0, *expected_shape))
+# y_valid_encoded = np.empty((0, *expected_y_shape))
 X_test = np.empty((0, *expected_shape))
 y_test = []
 
@@ -237,7 +237,7 @@ for filename in os.listdir(pkl_directory):
 
 print(f"Done loading games {startFile} to {endFile}")
 
-name = "1D_Conv_LSTM_v8"
+name = "Stacked_LSTM_v5_DeepHoops"
 
 modelHistoryPklDirectory = f"{name}_histories"
 
@@ -273,9 +273,9 @@ directory = f'Graphs_{name}'
 if not os.path.exists(directory):
     os.makedirs(directory)
 
-# plotLoss(combined_history.history,name)
-# plotAccuracy(combined_history.history,name)
-# plotLearningCurve(combined_history.history, X_train,name)
+plotLoss(combined_history.history,name)
+plotAccuracy(combined_history.history,name)
+plotLearningCurve(combined_history.history, name)
 plotLabelFreqAndPercentErr(combined_history.history,X_test,y_test,model,name)
 
 for class_index in mapping:

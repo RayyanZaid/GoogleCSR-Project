@@ -29,8 +29,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Define your data, X_train, y_train_encoded, X_valid, y_valid_encoded, X_test, y_test here
-# pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups'
-pkl_directory = r'C:\Users\rayya\Desktop\GoogleCSR-Project\training_history_groups_v2_Tis100'
+
+pkl_directory = r'D:\GoogleCSR-Project\training_history_groups_v2_Tis128'
 
 
 import os
@@ -144,7 +144,7 @@ import pickle
 import numpy as np
 
 # Define the expected dimensions
-expected_shape = (100, 24)
+expected_shape = (128, 24)
 expected_y_shape = (5,)
 
 
@@ -219,7 +219,7 @@ def trainModel(model, name):
 
     model.compile(
         loss='categorical_crossentropy',
-        optimizer=Adam(learning_rate=0.00008),
+        optimizer=Adam(learning_rate=0.0001),
         metrics=[
             'categorical_accuracy',  # Training accuracy
         
@@ -257,9 +257,9 @@ def trainModel(model, name):
 # Create and train the model
 
 
-name = "1D_Conv_LSTM_v8"
+name = "Stacked_LSTM_v5_DeepHoops"
 if not os.path.exists(name):
-    model = create1DConvLSTM()
+    model = createStackedLSTM()
 else:
     model = load_model(name)
 
