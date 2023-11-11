@@ -40,7 +40,7 @@ def plotAccuracy(history,modelName):
     plt.show()
 
 @print_error_and_continue
-def plotLearningCurve(history,modelName):
+def plotLearningCurve(history, X_train, modelName):
     train_loss = []  # To store training loss
     val_loss = []    # To store validation loss
     train_acc = []   # To store training accuracy
@@ -198,19 +198,19 @@ def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins
 
 
 startFile = 1
-endFile = 618
+endFile = 3
 file_count = 0
-expected_shape = (100, 24)
+expected_shape = (128, 24)
 expected_y_shape = (5,)
 
-# X_train = np.empty((0, *expected_shape))
+X_train = np.empty((0, *expected_shape))
 # y_train_encoded = np.empty((0, *expected_y_shape))
 # X_valid = np.empty((0, *expected_shape))
 # y_valid_encoded = np.empty((0, *expected_y_shape))
 X_test = np.empty((0, *expected_shape))
 y_test = []
 
-pkl_directory = "training_history_groups_v2_Tis100"
+pkl_directory = "training_history_groups_v2_Tis128"
 for filename in os.listdir(pkl_directory):
     if filename.endswith('.pkl'):
         # Check if the current file is within the desired range
@@ -225,7 +225,7 @@ for filename in os.listdir(pkl_directory):
             training_data_for_pickle = pickle.load(file)
 
             # Extend the corresponding arrays with data from pickle files
-            # X_train = np.concatenate((X_train, training_data_for_pickle['X_train']), axis=0)
+            X_train = np.concatenate((X_train, training_data_for_pickle['X_train']), axis=0)
             # y_train_encoded = np.concatenate((y_train_encoded, training_data_for_pickle['y_train_encoded']), axis=0)
             # X_valid = np.concatenate((X_valid, training_data_for_pickle['X_valid']), axis=0)
             # y_valid_encoded = np.concatenate((y_valid_encoded, training_data_for_pickle['y_valid_encoded']), axis=0)
@@ -275,7 +275,7 @@ if not os.path.exists(directory):
 
 plotLoss(combined_history.history,name)
 plotAccuracy(combined_history.history,name)
-plotLearningCurve(combined_history.history, name)
+plotLearningCurve(combined_history.history, X_train, name)
 plotLabelFreqAndPercentErr(combined_history.history,X_test,y_test,model,name)
 
 for class_index in mapping:
