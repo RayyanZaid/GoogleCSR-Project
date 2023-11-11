@@ -198,7 +198,7 @@ def plot_reliability_curve(model, X_test, y_test, class_index, modelName, n_bins
 
 
 startFile = 1
-endFile = 3
+endFile = 618
 file_count = 0
 expected_shape = (128, 24)
 expected_y_shape = (5,)
