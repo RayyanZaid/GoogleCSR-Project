@@ -28,9 +28,10 @@ from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 import numpy as np
 import matplotlib.pyplot as plt
 
+import globals
 # Define your data, X_train, y_train_encoded, X_valid, y_valid_encoded, X_test, y_test here
 
-pkl_directory = r'D:\GoogleCSR-Project\training_history_groups_v2_Tis128'
+pkl_directory = r'D:\GoogleCSR-Project\training_history_groups_v2_Tis100'
 
 
 import os
@@ -65,10 +66,10 @@ def createStackedLSTM() -> Sequential:
     # Stacked LSTM layers
     model.add(LSTM(32, return_sequences=True))  # return_sequences=True for stacked LSTM
     model.add(LSTM(32, return_sequences=True))
-    model.add(LSTM(32,activation='tanh'))  # You can add more LSTM layers if needed
+    model.add(LSTM(32,activation='tanh')) 
     
     # Dense layers
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(globals.WINDOW_SIZE, activation='relu'))
 
     # Output layer
     model.add(Dense(5, activation='softmax'))
@@ -114,7 +115,7 @@ def create1DConvLSTM():
     model = Sequential()
     
     # 1D Convolutional Layer
-    model.add(Conv1D(64, kernel_size=3, activation='relu', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
+    model.add(Conv1D(64, kernel_size=4, activation='relu', input_shape=(WINDOW_SIZE, MOMENT_SIZE)))
     model.add(MaxPooling1D(pool_size=2))
     
     # LSTM layers
@@ -144,7 +145,7 @@ import pickle
 import numpy as np
 
 # Define the expected dimensions
-expected_shape = (128, 24)
+expected_shape = (globals.WINDOW_SIZE, 24)
 expected_y_shape = (5,)
 
 
@@ -257,7 +258,7 @@ def trainModel(model, name):
 # Create and train the model
 
 
-name = "Stacked_LSTM_v5_DeepHoops"
+name = "Stacked_LSTM_v6_Tis100"
 if not os.path.exists(name):
     model = createStackedLSTM()
 else:
